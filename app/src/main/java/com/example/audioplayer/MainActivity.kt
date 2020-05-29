@@ -15,7 +15,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.CompositePageTransformer
+import com.example.audioplayer.scanner.DiscoverAndConvertCallback
 import com.example.audioplayer.scanner.DiscoverCallback
+import com.example.audioplayer.scanner.WeChatScanner.Companion.spaceTimes
 import com.example.audioplayer.scanner.WeChatScannerImpl
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
@@ -24,20 +26,17 @@ import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Toast.makeText(this, "afsdasdf", Toast.LENGTH_SHORT).show()
-
-
+        discoverAmr()
     }
 
-    private val scannerCallback = object : DiscoverCallback(){
-        override fun onReceived(file: File,userCode:String) {
-            Log.e("找到amr","${file.absolutePath}")
+    private val scannerCallback = object : DiscoverAndConvertCallback(){
+        override fun onReceived(voiceBean: VoiceBean) {
+            Log.e("名字${voiceBean.targetUser}","时长${voiceBean.minutes}")
         }
+
 
         override fun onError(error: String) {
 
@@ -46,7 +45,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun discoverAmr(){
         lifecycleScope.launch(Dispatchers.IO){
-            WeChatScannerImpl().discoverUsersVoice(this@MainActivity,scannerCallback)
+            WeChatScannerImpl().apply {
+                discoverUsersVoice(this@MainActivity,scannerCallback)
+            }
         }
     }
 

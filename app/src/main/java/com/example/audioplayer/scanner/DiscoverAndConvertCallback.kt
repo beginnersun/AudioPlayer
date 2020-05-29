@@ -11,6 +11,9 @@ import androidx.lifecycle.OnLifecycleEvent
 import com.example.audioplayer.*
 import java.io.File
 
+/**
+ * 扫描并且直接转为voiceBean,耗时较长并且进行解码操作必须在主线程所以要处理好callBack的生命周期(不过绑定了lifecycleOwner一般不会出问题)
+ */
 abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
 
     companion object {
@@ -56,6 +59,7 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
                 this.user = data.getString("code")
                 this.mp3Path = mp3Path
                 this.pcmPath = pcmPath
+                this.minutes = duration
             }
         } else {
             null

@@ -12,7 +12,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import java.io.File
 
-
+/**
+ * 普通的扫描(返回File)  耗时较小但还是建议在子线程
+ */
 abstract class DiscoverCallback:WeChatScanner.BaseDiscoverCallback, LifecycleObserver {
 
     companion object{

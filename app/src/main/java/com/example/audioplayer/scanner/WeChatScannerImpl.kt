@@ -1,6 +1,7 @@
 package com.example.audioplayer.scanner
 
 import android.util.Log
+import androidx.core.content.PermissionChecker
 import androidx.lifecycle.LifecycleOwner
 import com.example.audioplayer.Utils
 import com.example.audioplayer.VoiceBean
@@ -9,7 +10,7 @@ import com.example.audioplayer.scanner.WeChatScanner.Companion.userDir
 import com.example.audioplayer.scanner.WeChatScanner.Companion.voiceName
 import java.io.File
 
-class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime) : WeChatScanner {
+class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Boolean = false) : WeChatScanner {
 
     override fun discoverUserVoice(userCode: String): MutableList<VoiceBean> {
         val voiceDir = getUserVoiceDir(userCode)
@@ -105,7 +106,8 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime) : WeChatScanner 
             }
         } else {
             if (file.name.toLowerCase().endsWith(".amr")) {
-                if (inSpaceTime(file)) {
+                Log.e("扫描信息${file.absolutePath}","${spaceTime}")
+                if (inSpaceTime(file) || enoughTime) {
                     callback.received(file, userCode)
                 }
             }
