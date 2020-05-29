@@ -5,12 +5,17 @@
 package com.example.audioplayer
 
 import android.content.Context
+import android.media.MediaExtractor
+import android.media.MediaFormat
 import android.os.Environment
 import com.reinhard.wcvcodec.WcvCodec
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.OutputStream
+
+const val AUDIO_MP3_TYPE = "mp3"
+const val AUDIO_PCM_TYPE = "pcm"
 
 /**
  * amr格式转mp3
@@ -27,7 +32,19 @@ fun changeAmrToMp3(sourcePath:String,tmpPcmPath:String,targetMp3Path:String):Boo
     }
     return WcvCodec.decode(sourcePath,tmpPcmPath,targetMp3Path) == 0
 }
-
+/**
+ * 获取音频文件播放时长
+ */
+fun getMediaDuration(path:String):Int{
+    val extractor = MediaExtractor()
+    try {
+        extractor.setDataSource(path)
+    }catch (t:Throwable){
+        return 0
+    }
+    val format = extractor.getTrackFormat(0)
+    return (format.getLong(MediaFormat.KEY_DURATION)/1000/1000).toInt()
+}
 /**
  * @param context 此处的context最好使用applicationContext
  */
@@ -145,3 +162,22 @@ private fun getTargetPath(context:Context):String{
     }
     return "${file.absolutePath}${File.separator}t${System.currentTimeMillis()}.mp3"
 }
+fun getExternalPath(type:String) =
+    when(type){
+        "pcm" -> "${getExternalDir(type)}${File.separator}${System.currentTimeMillis()}tmp.pcm"
+        "mp3" -> "${getExternalDir(type)}${File.separator}${System.currentTimeMillis()}tmp.mp3"
+        else -> "${getExternalDir(type)}${File.separator}${System.currentTimeMillis()}tmp.other"
+    }
+private fun getDirPathOrCreate(path:String):String =
+    if (File(path).exists()){
+        path
+    }else{
+        File(path).mkdirs()
+        path
+    }
+fun getExternalDir(type:String) =
+    when(type){
+        "pcm" -> getDirPathOrCreate("${Environment.getExternalStorageDirectory()}${File.separator}audioPlayer${File.separator}pcm")
+        "mp3" -> getDirPathOrCreate("${Environment.getExternalStorageDirectory()}${File.separator}audioPlayer${File.separator}mp3")
+        else -> getDirPathOrCreate("${Environment.getExternalStorageDirectory()}${File.separator}audioPlayer")
+    }

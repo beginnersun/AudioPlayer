@@ -10,6 +10,8 @@ class VoiceBean {
     var minutes:Int = 0
     var createTime:String = ""
     var path:String = ""
+    var mp3Path:String = ""
+    var pcmPath:String = ""
 
     constructor(){
 

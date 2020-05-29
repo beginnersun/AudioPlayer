@@ -26,10 +26,10 @@ abstract class DiscoverCallback:WeChatScanner.BaseDiscoverCallback, LifecycleObs
         override fun handleMessage(msg: Message?) {
             when(msg?.what){
                 SUCCESS -> {
-                    val data = msg?.data
-                    val file = File(data.getString("path"))
-                    val userCode = data.getString("code")
-                    onReceived(file,userCode)
+                    msg?.let {
+                        val file = File(it.data.getString("path"))
+                        onReceived(file, it.data.getString("code"))
+                    }
                 }
                 FAIL -> {
                     onError("")

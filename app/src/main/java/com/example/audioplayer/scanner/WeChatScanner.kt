@@ -14,10 +14,10 @@ interface WeChatScanner {
     fun discoverUsersVoice():MutableMap<String,MutableList<VoiceBean>>
 
 
-    fun discoverUserVoice(lifecycleOwner: LifecycleOwner,userCode:String,callback: DiscoverCallback)
+    fun discoverUserVoice(lifecycleOwner: LifecycleOwner,userCode:String,callback: WeChatScanner.BaseDiscoverCallback)
 
 
-    fun discoverUsersVoice(lifecycleOwner: LifecycleOwner,callback: DiscoverCallback)
+    fun discoverUsersVoice(lifecycleOwner: LifecycleOwner,callback: WeChatScanner.BaseDiscoverCallback)
 
 
     companion object{
@@ -26,9 +26,11 @@ interface WeChatScanner {
                 "MicroMsg${File.separator}"
 
         val voiceName = "voice2"
+
+        const val defaultSpaceTime:Long = (1 * 30 * 24 * 60 * 60 * 1000.toLong())
     }
 
-    interface BaseDiscoverCallback{
+    interface BaseDiscoverCallback:LifecycleObserver{
         fun received(file: File,userCode: String)
     }
 

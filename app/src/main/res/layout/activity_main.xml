@@ -52,15 +52,15 @@
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.AppCompatTextView
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="220dp"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:gravity="center"
-        android:text="点击效果cc"
+        android:layout_marginTop="220dp"
+        android:background="@drawable/normal_ripple"
         android:clickable="true"
-        android:background="@drawable/normal_ripple"/>
+        android:gravity="center"
+        android:text="点击cc"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 
