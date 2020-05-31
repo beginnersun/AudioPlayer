@@ -13,8 +13,9 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
-
+        flavorDimensions "default"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [qqappid:"1108208362"]
     }
 
     buildTypes {
@@ -23,6 +24,30 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    signingConfigs {
+        debug {
+            storeFile file('voice.jks')
+            storePassword "5942036asd"
+            keyAlias "key0"
+            keyPassword "5942036asd"
+        }
+    }
+//
+//    /*配置渠道*/
+//    productFlavors {
+//        yingyongbao {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "yingyongbao"]
+//        }
+//        wandoujia {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "wandoujia"]
+//        }
+//        xiaomi {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "xiaomi"]
+//        }
+//        huawei{
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "huawei"]
+//        }
+//    }
 
 }
 
@@ -53,6 +78,12 @@ dependencies {
     // optional - Kotlin Extensions and Coroutines support for Room
     implementation "androidx.room:room-ktx:$room_version"
 
-    implementation "com.umeng.umsdk:common:2.1.0"
+    implementation  'com.umeng.umsdk:common:2.2.5'
+    implementation  'com.umeng.umsdk:utdid:1.1.5.3'
+    implementation  'com.umeng.umsdk:share-core:7.0.2'
+    implementation  'com.umeng.umsdk:share-board:7.0.2'
+
+    implementation  'com.umeng.umsdk:share-qq:7.0.2'
+    implementation  'com.umeng.umsdk:share-wx:7.0.2'
 
 }

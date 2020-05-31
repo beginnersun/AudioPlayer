@@ -12,21 +12,30 @@ import com.example.audioplayer.base.BaseRecyclerViewAdapter
 import com.example.audioplayer.scanner.DiscoverAndConvertCallback
 import com.example.audioplayer.scanner.WeChatScannerImpl
 import com.example.audioplayer.sqlite.Voice
+//import com.umeng.socialize.ShareAction
+//import com.umeng.socialize.UMShareAPI
+//import com.umeng.socialize.UMShareListener
+//import com.umeng.socialize.bean.SHARE_MEDIA
+//import com.umeng.socialize.media.UMusic
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity()
+//    ,UMShareListener
+{
 
     private val voiceList = mutableListOf<Voice>()
     private val voiceAdapter = VoiceAdapter(this,voiceList)
     private var playingPosition = -1
+//    private val uMShare = ShareAction(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         discoverAmr()
+//        uMShare.setCallback(this)
         refreshLayout.apply {
             setEnableRefresh(true)
             setEnableLoadMore(true)
@@ -78,7 +87,7 @@ class MainActivity : AppCompatActivity() {
 
                     }
                     R.id.iv_share -> {
-
+//                        shareMusic(data.mp3Path)
                     }
                 }
             }
@@ -141,7 +150,38 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+//        UMShareAPI.get(this).release();
         PlayUtils.instance.onDestroy()
     }
+
+//    fun shareMusic(path:String,title:String = "",description:String ="",toUrl:String = ""){
+//        val uMusic = UMusic(path)
+//        if (title.isNotEmpty()){
+//            uMusic.title = title
+//        }
+//        if(description.isNotEmpty()){
+//            uMusic.description = description
+//        }
+//        if (toUrl.isNotEmpty()){
+//            uMusic.setmTargetUrl(toUrl)
+//        }
+//        uMShare.withMedia(uMusic).share()
+//    }
+
+//    override fun onResult(p0: SHARE_MEDIA?) {
+//        Toast.makeText(this, "分享成功", Toast.LENGTH_SHORT).show()
+//    }
+//
+//    override fun onCancel(p0: SHARE_MEDIA?) {
+//        Toast.makeText(this, "取消分享", Toast.LENGTH_SHORT).show()
+//    }
+//
+//    override fun onError(p0: SHARE_MEDIA?, p1: Throwable?) {
+//        Toast.makeText(this, "分享失败", Toast.LENGTH_SHORT).show()
+//    }
+//
+//    override fun onStart(p0: SHARE_MEDIA?) {
+//        Toast.makeText(this, "开始分享", Toast.LENGTH_SHORT).show()
+//    }
 
 }
