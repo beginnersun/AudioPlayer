@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingTop="5dp"
+    android:paddingLeft="11dp"
+    android:paddingBottom="9dp"
+    android:paddingRight="11dp">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="流浪军"
+        android:textSize="11sp"
+        android:layout_marginLeft="12dp"
+        android:id="@+id/tv_name"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_edit"
+        app:layout_constraintStart_toEndOf="@id/tv_name"
+        app:layout_constraintBottom_toBottomOf="@id/tv_name"
+        android:layout_marginLeft="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_open"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/iv_edit"
+        android:layout_marginLeft="11dp"
+        app:layout_constraintBottom_toBottomOf="@id/tv_name"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_open"
+        app:layout_constraintBottom_toBottomOf="@id/tv_name"
+        app:layout_constraintHorizontal_bias="1"
+        android:text="2020-5-24,18:54:16"
+        android:textSize="10sp"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_name"
+        android:layout_marginTop="15dp"
+        android:src="@mipmap/un_select" />
+
+    <FrameLayout
+        android:id="@+id/fl_play_voice"
+        app:layout_constraintStart_toEndOf="@id/iv_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@mipmap/voice_bg"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="22dp"
+        android:layout_marginLeft="6dp"
+        app:layout_constraintTop_toTopOf="@id/iv_select"
+        app:layout_constraintBottom_toBottomOf="@id/iv_select">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_voice"
+            android:layout_marginLeft="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/voice_bg"/>
+
+    </FrameLayout>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_voice_minutes"
+        app:layout_constraintTop_toTopOf="@id/iv_select"
+        app:layout_constraintBottom_toBottomOf="@id/iv_select"
+        app:layout_constraintStart_toEndOf="@id/fl_play_voice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:text="5''"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_share"
+        app:layout_constraintStart_toEndOf="@id/tv_voice_minutes"
+        app:layout_constraintTop_toTopOf="@id/iv_select"
+        app:layout_constraintBottom_toBottomOf="@id/iv_select"
+        app:layout_constraintEnd_toStartOf="@+id/iv_like"
+        app:layout_constraintHorizontal_bias="1"
+        android:layout_marginRight="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/share"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_like"
+        app:layout_constraintStart_toEndOf="@id/tv_voice_minutes"
+        app:layout_constraintTop_toTopOf="@id/iv_select"
+        app:layout_constraintBottom_toBottomOf="@id/iv_select"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginRight="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/un_like"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

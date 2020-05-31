@@ -1,10 +1,9 @@
 package com.example.audioplayer.scanner
 
 import android.util.Log
-import androidx.core.content.PermissionChecker
 import androidx.lifecycle.LifecycleOwner
 import com.example.audioplayer.Utils
-import com.example.audioplayer.VoiceBean
+import com.example.audioplayer.sqlite.Voice
 import com.example.audioplayer.scanner.WeChatScanner.Companion.defaultSpaceTime
 import com.example.audioplayer.scanner.WeChatScanner.Companion.userDir
 import com.example.audioplayer.scanner.WeChatScanner.Companion.voiceName
@@ -12,9 +11,9 @@ import java.io.File
 
 class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Boolean = false) : WeChatScanner {
 
-    override fun discoverUserVoice(userCode: String): MutableList<VoiceBean> {
+    override fun discoverUserVoice(userCode: String): MutableList<Voice> {
         val voiceDir = getUserVoiceDir(userCode)
-        val voiceList = mutableListOf<VoiceBean>()
+        val voiceList = mutableListOf<Voice>()
         discoverAmr(File(voiceDir), voiceList, userCode)
         return voiceList
     }
@@ -30,14 +29,14 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Bo
     }
 
 
-    override fun discoverUsersVoice(): MutableMap<String, MutableList<VoiceBean>> {
+    override fun discoverUsersVoice(): MutableMap<String, MutableList<Voice>> {
         val dirs = discoverUsersDir()
-        val usersVoiceMap = mutableMapOf<String, MutableList<VoiceBean>>()
+        val usersVoiceMap = mutableMapOf<String, MutableList<Voice>>()
         if (dirs.isNotEmpty()) {
             for (dir in dirs) {
                 val userCode = File(dir).name
                 val voiceDir = getUserVoiceDir(userCode)
-                val voiceList = mutableListOf<VoiceBean>()
+                val voiceList = mutableListOf<Voice>()
                 discoverAmr(File(voiceDir), voiceList, userCode)
                 usersVoiceMap[userCode] = voiceList
             }
@@ -45,6 +44,9 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Bo
         return usersVoiceMap
     }
 
+    /**
+     * 扫描音频并回调 （游客模式)
+     */
     override fun discoverUsersVoice(
         lifecycleOwner: LifecycleOwner,
         callback: WeChatScanner.BaseDiscoverCallback
@@ -57,6 +59,9 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Bo
                 val voiceDir = getUserVoiceDir(userCode)
                 discoverAmr(File(voiceDir), userCode, callback)
             }
+            callback.onCompleted(false)
+        }else{
+            callback.onCompleted(true)
         }
     }
 
@@ -114,7 +119,7 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Bo
         }
     }
 
-    private fun discoverAmr(file: File, voiceList: MutableList<VoiceBean>, userCode: String) {
+    private fun discoverAmr(file: File, voiceList: MutableList<Voice>, userCode: String) {
         if (file.isDirectory) {
             if (file.listFiles().isNotEmpty()) {
                 for (item in file.listFiles()) {
@@ -123,7 +128,7 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Bo
             }
         } else {
             if (file.name.toLowerCase().endsWith(".amr")) {
-                val voiceBean = VoiceBean()
+                val voiceBean = Voice()
                 voiceBean.createTime =
                     Utils.getTimeFormat(file.lastModified())
                 voiceBean.path = file.absolutePath

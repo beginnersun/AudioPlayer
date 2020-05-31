@@ -3,15 +3,15 @@ package com.example.audioplayer.scanner
 import android.os.Environment
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.audioplayer.VoiceBean
+import com.example.audioplayer.sqlite.Voice
 import java.io.File
 
 interface WeChatScanner {
 
-    fun discoverUserVoice(userCode:String):MutableList<VoiceBean>
+    fun discoverUserVoice(userCode:String):MutableList<Voice>
 
 
-    fun discoverUsersVoice():MutableMap<String,MutableList<VoiceBean>>
+    fun discoverUsersVoice():MutableMap<String,MutableList<Voice>>
 
 
     fun discoverUserVoice(lifecycleOwner: LifecycleOwner,userCode:String,callback: WeChatScanner.BaseDiscoverCallback)
@@ -34,6 +34,8 @@ interface WeChatScanner {
 
     interface BaseDiscoverCallback:LifecycleObserver{
         fun received(file: File,userCode: String)
+
+        fun onCompleted(error:Boolean)
     }
 
 }
