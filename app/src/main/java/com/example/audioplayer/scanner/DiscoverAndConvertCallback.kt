@@ -25,8 +25,6 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
         const val NOT_FOUND = 3
         const val ALREADY_EXIST = 4
     }
-
-    private var alreadyVoice: Voice? = null
     private var onDestroy = false
     private var sumVoice = 0
     private var handler: Handler = object : Handler() {
@@ -34,10 +32,8 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
             when (msg?.what) {
                 ALREADY_EXIST -> {
                     sumVoice++
-                    Log.e("文件已存在","无需扫描${alreadyVoice?.path}")
-                    alreadyVoice?.let {
-                        onReceived(it)
-                    }
+                    val it = msg.obj as Voice
+                    onReceived(it)
                 }
                 SUCCESS -> {
                     val data = msg?.data
@@ -47,7 +43,6 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
                     } else {
                         sumVoice++
                         val vid = VoiceApplication.instance().getAppDataBase().voiceDao()?.insert(voiceBean)
-                        Log.e("新增一个文件","${alreadyVoice?.path}")
                         onReceived(voiceBean)
                     }
                 }
@@ -100,19 +95,13 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
         if (onDestroy) {
             return
         }
-        val ccvoice = Voice.convertToVoiceBean(file)
         if (file.name.toLowerCase().endsWith(".amr")) {
             val message = handler.obtainMessage()
             val voice = VoiceApplication.instance().getAppDataBase().voiceDao()
                 ?.findBySrcPath(file.absolutePath)
-            if (voice != null) {
-                Log.e("扫描已存在", "${ccvoice.targetName}  ${file.name}  ${voice.targetName}")
-            }else{
-                Log.e("扫描不存在", "${ccvoice.targetName}  ${file.name}")
-            }
             if (voice != null) {  //已存在
-                alreadyVoice = voice
                 message.what = ALREADY_EXIST
+                message.obj = voice
                 message.sendToTarget()
                 return
             }
