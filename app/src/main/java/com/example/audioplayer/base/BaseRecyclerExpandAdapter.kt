@@ -5,13 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 
 abstract class BaseRecyclerExpandAdapter<T>(override val datas: MutableList<T>) :
-    BaseRecyclerViewAdapter<T>(datas) {
-
-    /**
-     * 菜单状态  false 表示打开
-     *          true  表示关闭
-     */
-    private val menuState = mutableMapOf<Int, Boolean>()
+    BaseRecyclerViewAdapter<T>(datas), BaseMenuHolder.OnMenuChang<T> {
 
     /**
      * 保存隐藏的菜单对应的数据
@@ -20,21 +14,15 @@ abstract class BaseRecyclerExpandAdapter<T>(override val datas: MutableList<T>) 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<T> {
         val mHolder = getViewHolder(parent, getLayoutId(viewType), viewType)
+        mHolder.itemView.setOnClickListener(mHolder)
+        if (mHolder is BaseMenuHolder) {
+            mHolder.setOnMenuChangListener(this)
+        }
         mHolder.setOnViewClickListener(object : BaseViewHolder.OnViewClickListener {
             override fun onViewClick(view: View?, position: Int) {
-                if (isMenu(position)) {  //是一级菜单
-                    menuState[position] =
-                        !(menuState[position] != null && menuState[position]!!)
-                    if (!menuState[position]!!) {
-                        showMenuData(position, datas[position])
-                    } else {
-                        collectMenuData(position, datas[position])
-                    }
-                }
                 onClickListener?.onItemClick(view!!, viewType, datas[position], position)
             }
         })
-
         return mHolder
     }
 
@@ -73,13 +61,14 @@ abstract class BaseRecyclerExpandAdapter<T>(override val datas: MutableList<T>) 
 
     /**
      * 传入的item属于当前操作的menu(写入自己的判断逻辑)
+     * 判断条件时记得将菜单项排除在外
      */
     abstract fun inCurrentMenu(item: T, menu: T): Boolean
 
     /**
      * 将数据收集起来
      */
-    private fun collectMenuData(position: Int, data: T) {
+    override fun collectMenuData(position: Int, data: T) {
         var removed = false
         if (Build.VERSION.SDK_INT >= 24) {
             removed = datas.removeIf { t ->
@@ -97,7 +86,7 @@ abstract class BaseRecyclerExpandAdapter<T>(override val datas: MutableList<T>) 
     /**
      * 显示数据
      */
-    private fun showMenuData(position: Int, data: T) {
+    override fun showMenuData(position: Int, data: T) {
         datas.addAll(position + 1, getListByType(getMenuContent(data)))
         notifyItemRangeInserted(position + 1, getListByType(getMenuContent(data)).size)
         getListByType(getMenuContent(data)).clear()

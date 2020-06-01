@@ -14,10 +14,6 @@ abstract class BaseViewHolder<T>(itemView: View): RecyclerView.ViewHolder(itemVi
 
     abstract fun onRelease()
 
-    init {
-        itemView.setOnClickListener(this)
-    }
-
     fun <T:View> getView(@IdRes id:Int,enableClick:Boolean = false) :T{
         if (!sparseViews.contains(id)){
             val view = itemView.findViewById<View>(id)

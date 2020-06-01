@@ -7,14 +7,14 @@ import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
 
 
-abstract class BaseRecyclerViewAdapter<T>(protected val datas: MutableList<T>) :
+abstract class BaseRecyclerViewAdapter<T>(protected open val datas: MutableList<T>) :
     RecyclerView.Adapter<BaseViewHolder<T>>() {
 
-    private var onItemClickListener: OnRecyclerViewItemClickListener<T>? = null
+    protected var onClickListener: OnRecyclerViewItemClickListener<T>? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<T>{
-        val mHolder = getViewHolder(parent, getLayoutId(viewType))
-        onItemClickListener?.let {
+        val mHolder = getViewHolder(parent, getLayoutId(viewType),viewType)
+        onClickListener?.let {
             mHolder.setOnViewClickListener(object :BaseViewHolder.OnViewClickListener{
                 override fun onViewClick(view: View?, position: Int) {
                     it.onItemClick(view!!,viewType,datas[position],position)
@@ -34,14 +34,15 @@ abstract class BaseRecyclerViewAdapter<T>(protected val datas: MutableList<T>) :
 
     abstract fun getViewHolder(
         parent: ViewGroup,
-        @LayoutRes layoutId: Int
+        @LayoutRes layoutId: Int,
+        viewType: Int
     ): BaseViewHolder<T>
 
     @LayoutRes
     abstract fun getLayoutId(viewType: Int): Int
 
     fun setOnItemClickListener(onItemClickListener: OnRecyclerViewItemClickListener<T>) {
-        this.onItemClickListener = onItemClickListener
+        this.onClickListener = onItemClickListener
     }
 
     /**

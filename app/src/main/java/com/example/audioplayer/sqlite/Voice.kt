@@ -22,6 +22,9 @@ class Voice:Comparable<Voice>{
     @Ignore var isPlaying:Boolean = false //是否正在播放
     @Ignore var sumSize:Int = 0
 
+    @Ignore var typeName = ""
+    @Ignore var itemNum = 0
+    @Ignore var open = true //默认处于打开菜单
     constructor(){
 
     }

@@ -9,31 +9,59 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
-import com.example.audioplayer.base.BaseRecyclerViewAdapter
+import com.example.audioplayer.base.BaseMenuHolder
+import com.example.audioplayer.base.BaseRecyclerExpandAdapter
 import com.example.audioplayer.base.BaseViewHolder
 import com.example.audioplayer.sqlite.Voice
 import java.util.*
 
-class VoiceAdapter(private val context: Context, private val voices: MutableList<Voice>) :
-    BaseRecyclerViewAdapter<Voice>(voices){
+const val MENU_VIEW_TYPE = 0
+const val CONTENT_VIEW_TYPE = 1
+class VoiceExpandAdapter(private val context: Context, private val voices: MutableList<Voice>) :
+    BaseRecyclerExpandAdapter<Voice>(voices) {
+    override fun getMenuViewType(position: Int): Int = MENU_VIEW_TYPE
 
-    override fun getLayoutId(viewType: Int): Int = R.layout.item_voice
+    override fun getCustomItemViewType(position: Int): Int = CONTENT_VIEW_TYPE
 
-    override fun getItemCount(): Int {
-        return super.getItemCount()
+    override fun isMenu(position: Int): Boolean = voices[position].itemNum != 0
+
+    override fun getMenuContent(data: Voice): String = data.targetName
+
+    override fun inCurrentMenu(item: Voice, menu: Voice): Boolean =
+        item.targetName == menu.targetName && item.itemNum == 0
+
+    override fun getViewHolder(parent: ViewGroup, layoutId: Int,viewType: Int): BaseViewHolder<Voice> {
+        val itemView = LayoutInflater.from(context).inflate(layoutId,parent,false)
+        return when(viewType){
+            MENU_VIEW_TYPE -> MenuHolder(itemView)
+            CONTENT_VIEW_TYPE -> VoiceHolder(itemView)
+            else -> MenuHolder(itemView)
+        }
     }
 
-    override fun getViewHolder(
-        parent: ViewGroup,
-        layoutId: Int,
-        viewType: Int
-    ): BaseViewHolder<Voice> {
-        return VoiceHolder(LayoutInflater.from(context).inflate(layoutId,parent,false))
-    }
+    override fun getLayoutId(viewType: Int): Int =
+        when(viewType){
+            MENU_VIEW_TYPE -> R.layout.item_menu
+            CONTENT_VIEW_TYPE -> R.layout.item_voice
+            else -> R.layout.item_menu
+        }
 
-    class MenuHolder(itemView: View):BaseViewHolder<Voice>(itemView){
+
+    class MenuHolder(itemView: View):BaseMenuHolder<Voice>(itemView){
         override fun setData(bean: Voice) {
-
+            getView<AppCompatImageView>(R.id.iv_select).setOnClickListener {
+                onMenuChang?.showMenuData(adapterPosition,bean)
+            }
+            itemView.setOnClickListener {
+                bean.open = !bean.open
+                if (bean.open){
+                    onMenuChang?.showMenuData(adapterPosition,bean)
+                } else{
+                    onMenuChang?.collectMenuData(adapterPosition,bean)
+                }
+            }
+            getView<AppCompatTextView>(R.id.tv_menu).text = bean.targetName
+            getView<AppCompatTextView>(R.id.tv_num).text = "${bean.itemNum}"
         }
 
         override fun onRelease() {
@@ -42,11 +70,11 @@ class VoiceAdapter(private val context: Context, private val voices: MutableList
 
     }
 
-    class VoiceHolder(itemView:View):BaseViewHolder<Voice>(itemView){
+    class VoiceHolder(itemView: View):BaseViewHolder<Voice>(itemView){
 
         private val timer: Timer = Timer()
-        private var animation:AnimationDrawable? = null
-        private var timerTask:TimerTask? = null
+        private var animation: AnimationDrawable? = null
+        private var timerTask: TimerTask? = null
 
         override fun setData(bean: Voice) {
             getView<AppCompatTextView>(R.id.tv_name).text = "${bean.targetUser}"
@@ -106,7 +134,5 @@ class VoiceAdapter(private val context: Context, private val voices: MutableList
             timer.cancel()
         }
     }
-
-
 
 }
