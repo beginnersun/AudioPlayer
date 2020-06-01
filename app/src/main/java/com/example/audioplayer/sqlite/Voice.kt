@@ -41,6 +41,13 @@ class Voice:Comparable<Voice>{
             }
             return voiceBean
         }
+
+        fun createMenuBean(typeName:String,size:Int):Voice{
+            val voiceBean = Voice()
+            voiceBean.itemNum = size
+            voiceBean.typeName = typeName
+            return voiceBean
+        }
     }
 
     override fun equals(other: Any?): Boolean {
