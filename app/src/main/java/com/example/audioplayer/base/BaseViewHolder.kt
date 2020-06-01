@@ -8,7 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 abstract class BaseViewHolder<T>(itemView: View): RecyclerView.ViewHolder(itemView),View.OnClickListener {
     private val sparseViews:SparseArray<View> = SparseArray<View>()
-    private var onViewClickListener:OnViewClickListener? = null
+    protected var onViewClickListener:OnViewClickListener? = null
+        private set
 
     abstract fun setData(bean:T)
 

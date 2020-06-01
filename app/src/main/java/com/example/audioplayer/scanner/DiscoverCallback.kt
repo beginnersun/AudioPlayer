@@ -52,7 +52,7 @@ abstract class DiscoverCallback:WeChatScanner.BaseDiscoverCallback, LifecycleObs
         if (onDestroy){
             return
         }
-        Log.e("暂时寻找","${file.absolutePath}")
+        Log.e("暂时寻找","${file.name}")
         if (file.name.toLowerCase().equals(".amr")){
             val message = handler.obtainMessage()
             message.what = SUCCESS

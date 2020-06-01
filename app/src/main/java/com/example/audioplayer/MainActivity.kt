@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity()
 {
 
     private val voiceList = mutableListOf<Voice>()
-    private val voiceAdapter = VoiceAdapter(this,voiceList)
+    private val voiceAdapter = VoiceExpandAdapter(this,voiceList)
     private var playingPosition = -1
     private val uMShare = ShareAction(this)
 
@@ -40,6 +40,8 @@ class MainActivity : AppCompatActivity()
             setEnableRefresh(true)
             setEnableLoadMore(true)
             setOnRefreshListener {
+                voiceList.clear()
+                discoverAmr()
                 Toast.makeText(this@MainActivity, "正在刷新", Toast.LENGTH_SHORT).show()
                 finishRefresh(2*1000)
             }
@@ -100,6 +102,10 @@ class MainActivity : AppCompatActivity()
     }
 
     private fun dealVoicesByName(){
+        voiceList.forEach{
+            Log.e("扫描结果",it.toString())
+        }
+        println("分割线")
         if(Build.VERSION.SDK_INT >= 24) {
             voiceList.sortWith(Comparator.comparing(Voice::createTime))
             voiceList.sortWith(Comparator.comparing(Voice::targetName))
@@ -116,16 +122,22 @@ class MainActivity : AppCompatActivity()
                 oldTag = voiceList[nums].targetName
                 if (preMenuIndex!=-1){  //给上一个计数
                     voiceList[preMenuIndex].itemNum = sum
-                    preMenuIndex = nums
                 }
+                preMenuIndex = nums
                 voiceList.add(nums,Voice.createMenuBean(oldTag,sum))
                 sum = 0
             }else{
+                voiceList[nums].targetName = oldTag
                 sum++
             }
             nums++
         }
-        voiceList[preMenuIndex].itemNum = sum
+        if (preMenuIndex != -1) {
+            voiceList[preMenuIndex].itemNum = sum
+        }
+        voiceList.forEach{
+            println("输出   $it")
+        }
     }
 
     fun shareMusic(path:String,title:String = "",description:String ="",toUrl:String = ""){

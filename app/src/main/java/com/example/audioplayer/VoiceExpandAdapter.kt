@@ -50,6 +50,7 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
     class MenuHolder(itemView: View):BaseMenuHolder<Voice>(itemView){
         override fun setData(bean: Voice) {
             getView<AppCompatImageView>(R.id.iv_select).setOnClickListener {
+                bean.open = true
                 onMenuChang?.showMenuData(adapterPosition,bean)
             }
             itemView.setOnClickListener {
@@ -61,7 +62,7 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
                 }
             }
             getView<AppCompatTextView>(R.id.tv_menu).text = bean.targetName
-            getView<AppCompatTextView>(R.id.tv_num).text = "${bean.itemNum}"
+            getView<AppCompatTextView>(R.id.tv_num).text = "${bean.itemNum} 条"
         }
 
         override fun onRelease() {

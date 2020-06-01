@@ -100,11 +100,16 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
         if (onDestroy) {
             return
         }
-
+        val ccvoice = Voice.convertToVoiceBean(file)
         if (file.name.toLowerCase().endsWith(".amr")) {
             val message = handler.obtainMessage()
             val voice = VoiceApplication.instance().getAppDataBase().voiceDao()
                 ?.findBySrcPath(file.absolutePath)
+            if (voice != null) {
+                Log.e("扫描已存在", "${ccvoice.targetName}  ${file.name}  ${voice.targetName}")
+            }else{
+                Log.e("扫描不存在", "${ccvoice.targetName}  ${file.name}")
+            }
             if (voice != null) {  //已存在
                 alreadyVoice = voice
                 message.what = ALREADY_EXIST

@@ -111,7 +111,7 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Bo
             }
         } else {
             if (file.name.toLowerCase().endsWith(".amr")) {
-                Log.e("扫描信息${file.absolutePath}","${spaceTime}")
+                Log.e("${file.name}","")
                 if (inSpaceTime(file) || enoughTime) {
                     callback.received(file, userCode)
                 }

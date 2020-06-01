@@ -33,11 +33,9 @@ class VoiceAdapter(private val context: Context, private val voices: MutableList
 
     class MenuHolder(itemView: View):BaseViewHolder<Voice>(itemView){
         override fun setData(bean: Voice) {
-
         }
 
         override fun onRelease() {
-
         }
 
     }

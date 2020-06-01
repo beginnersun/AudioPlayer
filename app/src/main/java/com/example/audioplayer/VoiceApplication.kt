@@ -20,6 +20,7 @@ class VoiceApplication:Application() {
 
     override fun onCreate() {
         super.onCreate()
+        UMConfigure.setLogEnabled(true)
         instance = this
         appDataBase = Room.databaseBuilder(this,AppDataBase::class.java,"voice").allowMainThreadQueries().build()
         PlatformConfig.setQQZone("1108208362","Dp7nyNV9Qm78AmcB")

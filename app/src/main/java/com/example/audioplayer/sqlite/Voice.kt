@@ -4,10 +4,9 @@ import androidx.room.*
 import com.example.audioplayer.Utils
 import java.io.File
 
-@Fts4
 @Entity
 class Voice:Comparable<Voice>{
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "rowid") @Ignore var vid:Long = 0
+    @PrimaryKey(autoGenerate = true) var vid:Long = 0
     var user:String = ""
     var userCode:String = ""
     var targetUser:String = ""
@@ -47,6 +46,7 @@ class Voice:Comparable<Voice>{
 
         fun createMenuBean(typeName:String,size:Int):Voice{
             val voiceBean = Voice()
+            voiceBean.targetName = typeName
             voiceBean.itemNum = size
             voiceBean.typeName = typeName
             return voiceBean
@@ -74,5 +74,7 @@ class Voice:Comparable<Voice>{
             }
         }
 
+    override fun toString(): String =
+        "$targetName  $itemNum  $minutes  $path"
 
 }
