@@ -26,9 +26,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-<!--        <meta-data android:name="qqappid" android:value="1108208362"/>-->
+        <activity android:name=".MainActivity"/>
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".GuideActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -62,7 +62,6 @@
         <activity android:name=".LoginActivity">
         </activity>
 
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.example.audioplayer.fileprovider"
@@ -76,9 +75,7 @@
         <meta-data
             android:name="UMENG_APPKEY"
             android:value="5ed37cf0978eea0821194d96" />
-        <!--        <meta-data-->
-        <!--            android:name="UMENG_CHANNEL"-->
-        <!--            android:value="huawei" />-->
+
     </application>
 
 </manifest>

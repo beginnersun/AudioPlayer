@@ -1,4 +1,4 @@
-package com.example.audioplayer
+package com.example.audioplayer.adapter
 
 import android.content.Context
 import android.graphics.drawable.AnimationDrawable
@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import com.example.audioplayer.R
 import com.example.audioplayer.base.BaseMenuHolder
 import com.example.audioplayer.base.BaseRecyclerExpandAdapter
 import com.example.audioplayer.base.BaseViewHolder
@@ -19,9 +20,11 @@ const val MENU_VIEW_TYPE = 0
 const val CONTENT_VIEW_TYPE = 1
 class VoiceExpandAdapter(private val context: Context, private val voices: MutableList<Voice>) :
     BaseRecyclerExpandAdapter<Voice>(voices) {
-    override fun getMenuViewType(position: Int): Int = MENU_VIEW_TYPE
+    override fun getMenuViewType(position: Int): Int =
+        MENU_VIEW_TYPE
 
-    override fun getCustomItemViewType(position: Int): Int = CONTENT_VIEW_TYPE
+    override fun getCustomItemViewType(position: Int): Int =
+        CONTENT_VIEW_TYPE
 
     override fun isMenu(position: Int): Boolean = voices[position].itemNum != 0
 
@@ -33,9 +36,15 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
     override fun getViewHolder(parent: ViewGroup, layoutId: Int,viewType: Int): BaseViewHolder<Voice> {
         val itemView = LayoutInflater.from(context).inflate(layoutId,parent,false)
         return when(viewType){
-            MENU_VIEW_TYPE -> MenuHolder(itemView)
-            CONTENT_VIEW_TYPE -> VoiceHolder(itemView)
-            else -> MenuHolder(itemView)
+            MENU_VIEW_TYPE -> MenuHolder(
+                itemView
+            )
+            CONTENT_VIEW_TYPE -> VoiceHolder(
+                itemView
+            )
+            else -> MenuHolder(
+                itemView
+            )
         }
     }
 
@@ -83,7 +92,9 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
             getView<AppCompatTextView>(R.id.tv_time).text = "${bean.createTime}"
             getView<AppCompatTextView>(R.id.tv_name).text = "${bean.targetUser}"
             getView<FrameLayout>(R.id.fl_play_voice).setOnClickListener {
-                getView<AppCompatImageView>(R.id.iv_voice).setImageResource(R.drawable.voice_bg)
+                getView<AppCompatImageView>(R.id.iv_voice).setImageResource(
+                    R.drawable.voice_bg
+                )
                 animation = (getView<AppCompatImageView>(R.id.iv_voice).drawable as AnimationDrawable)
                 bean.isPlaying = !bean.isPlaying
                 it.tag = bean.isPlaying
@@ -117,7 +128,9 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
                 override fun run() {
                     Log.e("停止动画","停止")
                     animation?.stop()
-                    getView<AppCompatImageView>(R.id.iv_voice).setImageResource(R.drawable.voice_bg)
+                    getView<AppCompatImageView>(R.id.iv_voice).setImageResource(
+                        R.drawable.voice_bg
+                    )
                 }
             }
             animation?.start()
