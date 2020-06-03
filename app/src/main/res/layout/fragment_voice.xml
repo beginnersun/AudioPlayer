@@ -4,19 +4,45 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_group"
+        android:text="@string/group"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingTop="9dp"
+        android:paddingBottom="9dp"
+        android:paddingLeft="18dp"
+        android:paddingRight="18dp"
+        android:layout_marginLeft="18dp"
+        android:textColor="@color/black"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        app:layout_constraintStart_toEndOf="@id/tv_group"
+        app:layout_constraintBottom_toBottomOf="@id/tv_group"
+        app:layout_constraintTop_toTopOf="@id/tv_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="9dp"
+        android:id="@+id/iv_group"
+        android:src="@mipmap/arrow_down"/>
+
     <com.scwang.smartrefresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.087"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/tv_group"
+        app:layout_constraintVertical_bias="0.302">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/voice_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
     </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 

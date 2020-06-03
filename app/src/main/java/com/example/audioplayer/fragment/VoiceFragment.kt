@@ -10,8 +10,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.audioplayer.PlayUtils
-import com.example.audioplayer.R
+import com.example.audioplayer.*
+import com.example.audioplayer.adapter.MyListAdapter
 import com.example.audioplayer.adapter.VoiceExpandAdapter
 import com.example.audioplayer.base.BaseRecyclerViewAdapter
 import com.example.audioplayer.scanner.DiscoverAndConvertCallback
@@ -21,18 +21,21 @@ import com.umeng.socialize.ShareAction
 import com.umeng.socialize.UMShareListener
 import com.umeng.socialize.bean.SHARE_MEDIA
 import com.umeng.socialize.media.UMusic
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_voice.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Comparator
 
-class VoiceFragment : Fragment() , UMShareListener {
+class VoiceFragment : Fragment() , UMShareListener,PopupListWindow.OnItemClickListener<String>{
 
     private val voiceList = mutableListOf<Voice>()
     private lateinit var voiceAdapter:VoiceExpandAdapter
     private var playingPosition = -1
     private val uMShare = ShareAction(activity)
+    private var popupListWindow:PopupListWindow<String>? = null
+    private val groupList = mutableListOf<String>("按用户","按时间")
+    private var groupTag = "按用户"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -113,9 +116,37 @@ class VoiceFragment : Fragment() , UMShareListener {
             layoutManager = LinearLayoutManager(context)
             adapter = voiceAdapter
         }
+
+        popupListWindow = PopupListWindow(activity!!,groupList, dp2px(context!!,90f))
+
+        popupListWindow!!.setOnDismissListener(object : PopupListWindow.OnDismissListener{
+            override fun onDismiss() {
+                lifecycleScope.launch {
+                    rotate180(250,iv_group)
+                    delay(50)
+                    iv_group.isClickable = true
+                    tv_group.isClickable = true
+                }
+            }
+        })
+
+        popupListWindow?.setOnItemClickListener(this)
+        popupListWindow?.setAdapter(MyListAdapter(context!!,groupList))
+
+        iv_group.setOnClickListener {
+            rotate180(250,it)
+            popupListWindow?.showAsDropDown(it)
+            it.isClickable = false
+        }
+        tv_group.setOnClickListener {
+            rotate180(250,iv_group)
+            popupListWindow?.showAsDropDown(it)
+            it.isClickable = false
+        }
     }
 
     private fun dealVoicesByName(){
+        removeTag()
         if(Build.VERSION.SDK_INT >= 24) {
             voiceList.sortWith(Comparator.comparing(Voice::createTime))
             voiceList.sortWith(Comparator.comparing(Voice::targetName))
@@ -137,7 +168,7 @@ class VoiceFragment : Fragment() , UMShareListener {
                 voiceList.add(nums, Voice.createMenuBean(oldTag,sum))
                 sum = 0
             }else{
-                voiceList[nums].targetName = oldTag
+                voiceList[nums].typeName = oldTag
                 sum++
             }
             nums++
@@ -145,9 +176,39 @@ class VoiceFragment : Fragment() , UMShareListener {
         if (preMenuIndex != -1) {
             voiceList[preMenuIndex].itemNum = sum
         }
-        voiceList.forEach{
-            println("输出   $it")
+        voiceAdapter.notifyDataSetChanged()
+    }
+
+    private fun dealVoicesByTime(){
+        removeTag()
+        if(Build.VERSION.SDK_INT >= 24) {
+            voiceList.sortWith(Comparator.comparing(Voice::createTime))
+        }else{
+            voiceList.sorted()
         }
+        var sum = 0
+        var nums = 0
+        var oldTag = ""
+        var preMenuIndex = -1
+        while (nums != voiceList.size){
+            if (oldTag != voiceList[nums].createTime){
+                oldTag = voiceList[nums].createTime
+                if (preMenuIndex!=-1){  //给上一个计数
+                    voiceList[preMenuIndex].itemNum = sum
+                }
+                preMenuIndex = nums
+                voiceList.add(nums, Voice.createMenuBean(oldTag,sum))
+                sum = 0
+            }else{
+                voiceList[nums].typeName = oldTag
+                sum++
+            }
+            nums++
+        }
+        if (preMenuIndex != -1) {
+            voiceList[preMenuIndex].itemNum = sum
+        }
+        voiceAdapter.notifyDataSetChanged()
     }
 
     fun shareMusic(path:String,title:String = "",description:String ="",toUrl:String = ""){
@@ -187,7 +248,6 @@ class VoiceFragment : Fragment() , UMShareListener {
         override fun onFinished(num: Int) {
             if(num != 0){
                 dealVoicesByName()
-                voiceAdapter.notifyDataSetChanged()
             }
         }
     }
@@ -219,6 +279,27 @@ class VoiceFragment : Fragment() , UMShareListener {
 
     override fun onStart(p0: SHARE_MEDIA?) {
         Toast.makeText(context, "开始分享", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onItemClick(view: View, position: Int, data: String) {
+        when(data){
+            "按用户" -> {
+                if(groupTag != data) {
+                    groupTag = data
+                    dealVoicesByName()
+                }
+            }
+            "按时间" -> {
+                if(groupTag != data) {
+                    groupTag = data
+                    dealVoicesByTime()
+                }
+            }
+        }
+    }
+
+    private fun removeTag(){
+        voiceList.removeAll { it.itemNum != 0 }
     }
 
 }

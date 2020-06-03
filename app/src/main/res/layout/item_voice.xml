@@ -3,9 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:paddingTop="6dp"
+    android:paddingTop="9dp"
     android:paddingLeft="12dp"
-    android:paddingBottom="9dp"
+    android:paddingBottom="6dp"
     android:paddingRight="12dp">
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -116,7 +116,7 @@
         android:layout_height="0.5dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_select"
+        app:layout_constraintTop_toBottomOf="@id/fl_play_voice"
         android:layout_marginTop="12dp"
         android:background="#f4f4f4"/>
 

@@ -19,6 +19,7 @@ class Voice() :Comparable<Voice>,Parcelable{
     var mp3Path:String = ""
     var pcmPath:String = ""
     var like:Boolean = false
+    var time:Long = 0
     @Ignore var selected:Boolean = false  //是否被选中
     @Ignore var isPlaying:Boolean = false //是否正在播放
     @Ignore var sumSize:Int = 0
@@ -105,8 +106,9 @@ class Voice() :Comparable<Voice>,Parcelable{
 
         fun convertToVoiceBean(file: File): Voice {
             val voiceBean = Voice()
+            voiceBean.time = file.lastModified()
             voiceBean.createTime =
-                Utils.getTimeFormat(file.lastModified())
+                Utils.getVoiceTime(file.lastModified())
             voiceBean.path = file.absolutePath
             val start = voiceBean.path.length -11 - codeLength -1   //-11 代表去掉随机生成的7位字符+后缀 -5代表不变的code  -1是因为下标从0开始
             if (start > 0 && voiceBean.path.length > start && voiceBean.path.length > start + codeLength) {
@@ -118,7 +120,6 @@ class Voice() :Comparable<Voice>,Parcelable{
 
         fun createMenuBean(typeName:String,size:Int):Voice{
             val voiceBean = Voice()
-            voiceBean.targetName = typeName
             voiceBean.itemNum = size
             voiceBean.typeName = typeName
             return voiceBean

@@ -1,4 +1,4 @@
-package com.example.audioplayer.scanner
+package com.example.audioplayer
 
 import android.app.Activity
 import android.content.Context
@@ -7,18 +7,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.*
-import com.example.audioplayer.R
 
 class PopupListWindow<T>(private val context:Context, private val beans:MutableList<T>, private val mWidth:Int = ViewGroup.LayoutParams.WRAP_CONTENT,
                          private val mHeight:Int = ViewGroup.LayoutParams.WRAP_CONTENT):PopupWindow(mWidth,mHeight),AdapterView.OnItemClickListener,PopupWindow.OnDismissListener {
 
     private var adapter:ListAdapter? = null
-    private var onItemClickListener:OnItemClickListener<T>? = null
-    private var onDismissListener:OnDismissListener? = null
+    private var onItemClickListener: OnItemClickListener<T>? = null
+    private var onDismissListener: OnDismissListener? = null
     var alpha = 0.2f
     var noBackgroundGray = true
 
-    fun setOnDismissListener(onDismissListener:OnDismissListener){
+    fun setOnDismissListener(onDismissListener: OnDismissListener){
         this.onDismissListener = onDismissListener
     }
 
@@ -37,13 +36,16 @@ class PopupListWindow<T>(private val context:Context, private val beans:MutableL
         contentView = LayoutInflater.from(context).inflate(R.layout.popup_list,null)
         listView = contentView.findViewById(R.id.listView)
         listView.onItemClickListener = this
-//        animationStyle = R.style.PopupWindowAnimationStyle
+        setOnDismissListener(this)
+        animationStyle = R.style.PopupWindowAnimationStyle
         setBackgroundDrawable(context.resources.getDrawable(android.R.color.transparent))
         isOutsideTouchable = true
+        isTouchable = true
     }
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         onItemClickListener?.onItemClick(view!!,position,beans[position])
+        dismiss()
     }
 
     override fun showAsDropDown(anchor: View?) {

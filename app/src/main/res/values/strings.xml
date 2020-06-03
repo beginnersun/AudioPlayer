@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AudioPlayer</string>
+    <string name="group">分组</string>
 </resources>

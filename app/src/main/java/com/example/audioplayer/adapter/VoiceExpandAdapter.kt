@@ -28,10 +28,10 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
 
     override fun isMenu(position: Int): Boolean = voices[position].itemNum != 0
 
-    override fun getMenuContent(data: Voice): String = data.targetName
+    override fun getMenuContent(data: Voice): String = data.typeName
 
     override fun inCurrentMenu(item: Voice, menu: Voice): Boolean =
-        item.targetName == menu.targetName && item.itemNum == 0
+        item.typeName == menu.typeName && item.itemNum == 0
 
     override fun getViewHolder(parent: ViewGroup, layoutId: Int,viewType: Int): BaseViewHolder<Voice> {
         val itemView = LayoutInflater.from(context).inflate(layoutId,parent,false)
@@ -70,7 +70,7 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
                     onMenuChang?.collectMenuData(adapterPosition,bean)
                 }
             }
-            getView<AppCompatTextView>(R.id.tv_menu).text = bean.targetName
+            getView<AppCompatTextView>(R.id.tv_menu).text = bean.typeName
             getView<AppCompatTextView>(R.id.tv_num).text = "${bean.itemNum} 条"
         }
 
