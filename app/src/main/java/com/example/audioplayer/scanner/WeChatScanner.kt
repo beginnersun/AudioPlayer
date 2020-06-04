@@ -33,6 +33,9 @@ interface WeChatScanner {
     }
 
     interface BaseDiscoverCallback:LifecycleObserver{
+        
+        fun registerLifecycle(lifecycleOwner: LifecycleOwner)
+        
         fun received(file: File,userCode: String)
 
         fun onCompleted(error:Boolean)
