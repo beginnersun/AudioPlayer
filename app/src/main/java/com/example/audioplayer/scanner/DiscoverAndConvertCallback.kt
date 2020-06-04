@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Message
 import android.util.Log
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.example.audioplayer.*
 import com.example.audioplayer.sqlite.Voice

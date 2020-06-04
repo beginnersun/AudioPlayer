@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +16,9 @@ import com.example.audioplayer.adapter.MyListAdapter
 import com.example.audioplayer.adapter.VoiceExpandAdapter
 import com.example.audioplayer.base.BaseRecyclerViewAdapter
 import com.example.audioplayer.scanner.DiscoverAndConvertCallback
+import com.example.audioplayer.scanner.WeChatScanner.Companion.defaultSpaceTime
+import com.example.audioplayer.scanner.WeChatScanner.Companion.fiveMonthSpaceTime
+import com.example.audioplayer.scanner.WeChatScanner.Companion.threeMonthSpaceTime
 import com.example.audioplayer.scanner.WeChatScannerImpl
 import com.example.audioplayer.sqlite.Voice
 import com.umeng.socialize.ShareAction
@@ -25,6 +29,7 @@ import kotlinx.android.synthetic.main.fragment_voice.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.anko.defaultSharedPreferences
 import java.util.Comparator
 
 class VoiceFragment : Fragment() , UMShareListener,PopupListWindow.OnItemClickListener<String>{
@@ -34,8 +39,12 @@ class VoiceFragment : Fragment() , UMShareListener,PopupListWindow.OnItemClickLi
     private var playingPosition = -1
     private val uMShare = ShareAction(activity)
     private var popupListWindow:PopupListWindow<String>? = null
+    private var timePopupListWindow:PopupListWindow<String>? = null
     private val groupList = mutableListOf<String>("按用户","按时间")
+    private lateinit var timeList:MutableList<String>
     private var groupTag = "按用户"
+    private var timeTag = "一个月"
+    private val weChatScannerImpl = WeChatScannerImpl()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,9 +55,10 @@ class VoiceFragment : Fragment() , UMShareListener,PopupListWindow.OnItemClickLi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        timeList = mutableListOf<String>(getString(R.string.one_month),getString(R.string.three_month),getString(R.string.five_month))
 
         voiceAdapter = VoiceExpandAdapter(activity!!, voiceList)
-
+        scannerCallback.registerLifecycle(this)
         discoverAmr()
 
         uMShare.setCallback(this)
@@ -57,30 +67,23 @@ class VoiceFragment : Fragment() , UMShareListener,PopupListWindow.OnItemClickLi
             setEnableRefresh(true)
             setEnableLoadMore(true)
             setOnRefreshListener {
-                voiceList.clear()
-                discoverAmr()
-                Toast.makeText(context, "正在刷新", Toast.LENGTH_SHORT).show()
-                finishRefresh(2*1000)
+                refresh()
             }
             setOnLoadMoreListener {
-                Toast.makeText(context, "正在加载", Toast.LENGTH_SHORT).show()
-                finishLoadMore(2*1000)
+                loadMore()
             }
         }
 
         PlayUtils.instance.setOnPlayChangedListener(object : PlayUtils.OnPlayChangedListener{
             override fun onPrepared() {
-                Toast.makeText(context, "准备完成", Toast.LENGTH_SHORT).show()
             }
 
             override fun onCompleted() {
-                Toast.makeText(context, "播放完成", Toast.LENGTH_SHORT).show()
                 voiceList[playingPosition].isPlaying = false
                 playingPosition = -1
             }
 
             override fun onError() {
-                Toast.makeText(context, "播放失败", Toast.LENGTH_SHORT).show()
                 voiceList[playingPosition].isPlaying = false
                 playingPosition = -1
             }
@@ -108,6 +111,12 @@ class VoiceFragment : Fragment() , UMShareListener,PopupListWindow.OnItemClickLi
                     R.id.iv_share -> {
                         shareMusic(data.mp3Path)
                     }
+                    R.id.tv_name -> {
+
+                        context!!.defaultSharedPreferences.edit {
+                            putString(data.targetName,"输入框")
+                        }
+                    }
                 }
             }
         })
@@ -118,6 +127,8 @@ class VoiceFragment : Fragment() , UMShareListener,PopupListWindow.OnItemClickLi
         }
 
         popupListWindow = PopupListWindow(activity!!,groupList, dp2px(context!!,90f))
+
+        timePopupListWindow = PopupListWindow(activity!!,timeList, dp2px(context!!,90f))
 
         popupListWindow!!.setOnDismissListener(object : PopupListWindow.OnDismissListener{
             override fun onDismiss() {
@@ -130,6 +141,15 @@ class VoiceFragment : Fragment() , UMShareListener,PopupListWindow.OnItemClickLi
             }
         })
 
+        timePopupListWindow!!.setOnDismissListener {
+            lifecycleScope.launch {
+                rotate180(250,iv_time_type)
+                delay(50)
+                iv_time_type.isClickable = true
+                tv_time_type.isClickable = true
+            }
+        }
+
         popupListWindow?.setOnItemClickListener(this)
         popupListWindow?.setAdapter(MyListAdapter(context!!,groupList))
 
@@ -141,6 +161,16 @@ class VoiceFragment : Fragment() , UMShareListener,PopupListWindow.OnItemClickLi
         tv_group.setOnClickListener {
             rotate180(250,iv_group)
             popupListWindow?.showAsDropDown(it)
+            it.isClickable = false
+        }
+        iv_time_type.setOnClickListener {
+            rotate180(250,it)
+            timePopupListWindow?.showAsDropDown(it)
+            it.isClickable = false
+        }
+        tv_time_type.setOnClickListener {
+            rotate180(250,iv_time_type)
+            timePopupListWindow?.showAsDropDown(it)
             it.isClickable = false
         }
     }
@@ -241,27 +271,51 @@ class VoiceFragment : Fragment() , UMShareListener,PopupListWindow.OnItemClickLi
 
     private val scannerCallback = object : DiscoverAndConvertCallback(){
         override fun onReceived(voice: Voice) {
+            voice.targetName = context!!.defaultSharedPreferences.getString(voice.targetUser,voice.targetUser) //如果没有则取targetUser也就是code
             voiceList.add(voice)
         }
         override fun onError(error: String) {
         }
         override fun onFinished(num: Int) {
+            refreshLayout.finishRefresh()
+            refreshLayout.finishLoadMore()
             if(num != 0){
-                dealVoicesByName()
+                voiceAdapter.releaseAllMenuData()
+                when(groupTag){
+                    "按时间" -> dealVoicesByTime()
+                    "按用户" -> dealVoicesByName()
+                }
             }
         }
     }
 
     private fun discoverAmr(){
         lifecycleScope.launch(Dispatchers.IO){
-            WeChatScannerImpl().apply {
-                discoverUsersVoice(this@VoiceFragment,scannerCallback)
-            }
+            weChatScannerImpl.discoverUsersVoice(scannerCallback)
+        }
+    }
+
+    private fun loadMore(){
+        lifecycleScope.launch(Dispatchers.IO){
+            weChatScannerImpl.count++
+            weChatScannerImpl.discoverUsersVoice(scannerCallback)
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        popupListWindow?.let {
+            if (it.isShowing){
+                it.dismiss()
+            }
+        }
+        timePopupListWindow?.let {
+            if (it.isShowing){
+                it.dismiss()
+            }
+        }
+        popupListWindow = null
+        timePopupListWindow = null
         PlayUtils.instance.onDestroy()
     }
 
@@ -295,11 +349,37 @@ class VoiceFragment : Fragment() , UMShareListener,PopupListWindow.OnItemClickLi
                     dealVoicesByTime()
                 }
             }
+            "一个月" -> {
+                if (timeTag != data){
+                    timeTag = data
+                    weChatScannerImpl.spaceTime = defaultSpaceTime
+                    refresh()
+                }
+            }
+            "三个月" -> {
+                if (timeTag != data){
+                    timeTag = data
+                    weChatScannerImpl.spaceTime = threeMonthSpaceTime
+                    refresh()
+                }
+            }
+            "五个月" -> {
+                if (timeTag != data){
+                    timeTag = data
+                    weChatScannerImpl.spaceTime = fiveMonthSpaceTime
+                    refresh()
+                }
+            }
         }
     }
 
     private fun removeTag(){
         voiceList.removeAll { it.itemNum != 0 }
+    }
+
+    private fun refresh(){
+        voiceList.clear()
+        discoverAmr()
     }
 
 }

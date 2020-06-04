@@ -87,10 +87,9 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
         private var timerTask: TimerTask? = null
 
         override fun setData(bean: Voice) {
-            getView<AppCompatTextView>(R.id.tv_name).text = "${bean.targetUser}"
+            getView<AppCompatTextView>(R.id.tv_name,true).text = "${bean.targetUser}"
             getView<AppCompatTextView>(R.id.tv_voice_minutes).text = "${bean.minutes}"
             getView<AppCompatTextView>(R.id.tv_time).text = "${bean.createTime}"
-            getView<AppCompatTextView>(R.id.tv_name).text = "${bean.targetUser}"
             getView<FrameLayout>(R.id.fl_play_voice).setOnClickListener {
                 getView<AppCompatImageView>(R.id.iv_voice).setImageResource(
                     R.drawable.voice_bg

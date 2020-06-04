@@ -28,6 +28,31 @@
         android:id="@+id/iv_group"
         android:src="@mipmap/arrow_down"/>
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_time_type"
+        android:text="@string/one_month"
+        android:paddingTop="9dp"
+        android:paddingBottom="9dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toStartOf="@+id/iv_time_type"
+        app:layout_constraintTop_toTopOf="@id/tv_group"
+        app:layout_constraintBottom_toBottomOf="@id/tv_group"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_time_type"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_group"
+        app:layout_constraintBottom_toBottomOf="@id/tv_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="9dp"
+        android:layout_marginRight="12dp"
+        android:src="@mipmap/arrow_down"/>
+
     <com.scwang.smartrefresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="0dp"

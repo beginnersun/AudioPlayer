@@ -30,6 +30,10 @@ interface WeChatScanner {
         val spaceTimes = arrayOf(1 * 30 * 24 * 60 * 60 * 1000.toLong(),3 * 30 * 24 * 60 * 60 * 1000.toLong(),5 * 30 * 24 * 60 * 60 * 1000.toLong())
 
         const val defaultSpaceTime:Long = (1 * 30 * 24 * 60 * 60 * 1000.toLong())
+
+        const val threeMonthSpaceTime:Long = (3 * 30 * 24 * 60 * 60 * 1000.toLong())
+
+        const val fiveMonthSpaceTime:Long = (5 * 30 * 24 * 60 * 60 * 1000.toLong())
     }
 
     interface BaseDiscoverCallback:LifecycleObserver{

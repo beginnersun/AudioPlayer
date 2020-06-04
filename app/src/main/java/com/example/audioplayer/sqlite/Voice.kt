@@ -11,7 +11,7 @@ class Voice() :Comparable<Voice>,Parcelable{
     @PrimaryKey(autoGenerate = true) var vid:Long = 0
     var user:String = ""
     var userCode:String = ""
-    var targetUser:String = ""
+    var targetUser:String = "" //截取的code串
     var targetName:String = ""//设置的名字 默认是对应code的截取串
     var minutes:Int = 0
     var createTime:String = ""

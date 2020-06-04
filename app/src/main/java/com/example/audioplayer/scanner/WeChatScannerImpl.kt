@@ -9,7 +9,15 @@ import com.example.audioplayer.scanner.WeChatScanner.Companion.userDir
 import com.example.audioplayer.scanner.WeChatScanner.Companion.voiceName
 import java.io.File
 
-class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Boolean = false) : WeChatScanner {
+/**
+ * @param enoughTime true 代表有足够的时间去扫描
+ * count 代表当前加载的次数(count == 1)代表第一次加载
+ */
+class WeChatScannerImpl(
+    var count: Int = 1,
+    var spaceTime: Long = defaultSpaceTime,
+    var enoughTime: Boolean = false
+) : WeChatScanner {
 
     override fun discoverUserVoice(userCode: String): MutableList<Voice> {
         val voiceDir = getUserVoiceDir(userCode)
@@ -19,11 +27,9 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Bo
     }
 
     override fun discoverUserVoice(
-        LifecycleOwner: LifecycleOwner,
         userCode: String,
         callback: WeChatScanner.BaseDiscoverCallback
     ) {
-        LifecycleOwner.lifecycle.addObserver(callback)
         val voiceDir = getUserVoiceDir(userCode)
         discoverAmr(File(voiceDir), userCode, callback)
     }
@@ -48,10 +54,8 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Bo
      * 扫描音频并回调 （游客模式)
      */
     override fun discoverUsersVoice(
-        lifecycleOwner: LifecycleOwner,
         callback: WeChatScanner.BaseDiscoverCallback
     ) {
-        lifecycleOwner.lifecycle.addObserver(callback)
         val dirs = discoverUsersDir()
         if (dirs.isNotEmpty()) {
             for (dir in dirs) {
@@ -60,7 +64,7 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Bo
                 discoverAmr(File(voiceDir), userCode, callback)
             }
             callback.onCompleted(false)
-        }else{
+        } else {
             callback.onCompleted(true)
         }
     }
@@ -111,7 +115,7 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Bo
             }
         } else {
             if (file.name.toLowerCase().endsWith(".amr")) {
-                Log.e("${file.name}","")
+                Log.e("${file.name}", "")
                 if (inSpaceTime(file) || enoughTime) {
                     callback.received(file, userCode)
                 }
@@ -128,19 +132,16 @@ class WeChatScannerImpl(var spaceTime: Long = defaultSpaceTime,var enoughTime:Bo
             }
         } else {
             if (file.name.toLowerCase().endsWith(".amr")) {
-                val voiceBean = Voice()
-                voiceBean.createTime =
-                    Utils.getTimeFormat(file.lastModified())
-                voiceBean.path = file.absolutePath
-                voiceBean.userCode = userCode
+                val voiceBean = Voice.convertToVoiceBean(file)
                 voiceList.add(voiceBean)
             }
         }
     }
 
     /**
-     * 处于间隔时间内  默认为一个月
+     * 处于间隔时间内  (默认为间隔时间为一个月)
      */
-    private fun inSpaceTime(file:File) = System.currentTimeMillis() - file.lastModified() < spaceTime
+    private fun inSpaceTime(file: File) = System.currentTimeMillis() - file.lastModified() >= (count - 1) * spaceTime
+            && System.currentTimeMillis() - file.lastModified() < count * spaceTime
 
 }

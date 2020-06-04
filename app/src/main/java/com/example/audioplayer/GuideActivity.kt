@@ -20,12 +20,10 @@ class GuideActivity : AppCompatActivity() {
             ) {
                 requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
             } else {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+                next()
             }
         } else {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            next()
         }
     }
 
@@ -33,4 +31,19 @@ class GuideActivity : AppCompatActivity() {
         super.onResume()
     }
 
+    fun next(){
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            next()
+        }
+    }
 }

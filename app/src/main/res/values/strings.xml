@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">AudioPlayer</string>
     <string name="group">分组</string>
+    <string name="one_month">一个月</string>
+    <string name="three_month">三个月</string>
+    <string name="five_month">五个月</string>
+    <string name="edit_wx_name">修改微信好友名称</string>
 </resources>

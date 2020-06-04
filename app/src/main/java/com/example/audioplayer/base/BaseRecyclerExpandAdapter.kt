@@ -92,4 +92,17 @@ abstract class BaseRecyclerExpandAdapter<T>(override val datas: MutableList<T>) 
         getListByType(getMenuContent(data)).clear()
     }
 
+    fun releaseAllMenuData(){
+        var index = 0
+        while (index != datas.size){
+            if (isMenu(index)){
+                val list = getListByType(getMenuContent(datas[index]))
+                datas.addAll(index+1,list)
+                index += list.size
+                list.clear()
+            }else {
+                index++
+            }
+        }
+    }
 }
