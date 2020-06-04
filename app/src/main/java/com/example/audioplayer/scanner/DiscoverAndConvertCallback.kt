@@ -25,6 +25,11 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
         const val NOT_FOUND = 3
         const val ALREADY_EXIST = 4
     }
+    
+    override fun registerLifecycle(lifecycleOwner: LifecycleOwner) {
+        lifecycleOwner.lifecycle.addObserver(this)
+    }
+    
     private var onDestroy = false
     private var sumVoice = 0
     private var handler: Handler = object : Handler() {
