@@ -12,12 +12,12 @@ interface WeChatScanner {
 
 
     fun discoverUsersVoice():MutableMap<String,MutableList<Voice>>
+    
+
+    fun discoverUserVoice(userCode:String,callback: WeChatScanner.BaseDiscoverCallback)
 
 
-    fun discoverUserVoice(lifecycleOwner: LifecycleOwner,userCode:String,callback: WeChatScanner.BaseDiscoverCallback)
-
-
-    fun discoverUsersVoice(lifecycleOwner: LifecycleOwner,callback: WeChatScanner.BaseDiscoverCallback)
+    fun discoverUsersVoice(callback: WeChatScanner.BaseDiscoverCallback)
 
 
     companion object{
