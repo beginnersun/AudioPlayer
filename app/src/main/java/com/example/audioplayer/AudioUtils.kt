@@ -46,6 +46,22 @@ fun getMediaDuration(path:String):Int{
     return (format.getLong(MediaFormat.KEY_DURATION)/1000/1000).toInt()
 }
 /**
+ * 合并pcm并且转换为mp3
+ */
+fun mergePcmToMp3(fileList:MutableList<String>,outPutPath:String):Boolean{
+    if (fileList.isNullOrEmpty()){
+        return false
+    }
+    val mergePcmPath = getExternalPath(AUDIO_PCM_TYPE)
+    mergePcmFiles(fileList, mergePcmPath)
+    val amrPath = getExternalPath("amr")
+    val pcmToAmr = changePcmToAmr(mergePcmPath,amrPath)
+    if (!pcmToAmr){
+        return false
+    }
+    return changeAmrToMp3(amrPath, getExternalPath(AUDIO_PCM_TYPE),outPutPath)
+}
+/**
  * @param context 此处的context最好使用applicationContext
  */
 fun changeAmrToMp3AndMerge(context: Context,sourcePaths:MutableList<String>,mergeMp3Path:String):Boolean{
@@ -166,6 +182,7 @@ fun getExternalPath(type:String) =
     when(type){
         "pcm" -> "${getExternalDir(type)}${File.separator}${System.currentTimeMillis()}tmp.pcm"
         "mp3" -> "${getExternalDir(type)}${File.separator}${System.currentTimeMillis()}tmp.mp3"
+        "amr" -> "${getExternalDir(type)}${File.separator}${System.currentTimeMillis()}tmp.amr"
         else -> "${getExternalDir(type)}${File.separator}${System.currentTimeMillis()}tmp.other"
     }
 private fun getDirPathOrCreate(path:String):String =

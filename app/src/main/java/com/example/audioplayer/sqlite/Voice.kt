@@ -22,7 +22,6 @@ class Voice() :Comparable<Voice>,Parcelable{
     var time:Long = 0
     @Ignore var selected:Boolean = false  //是否被选中
     @Ignore var isPlaying:Boolean = false //是否正在播放
-    @Ignore var sumSize:Int = 0
 
     @Ignore var typeName = ""
     @Ignore var itemNum = 0

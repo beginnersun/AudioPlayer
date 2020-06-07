@@ -1,9 +1,6 @@
 package com.example.audioplayer.sqlite
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
 interface VoiceDao {
@@ -22,6 +19,9 @@ interface VoiceDao {
 
     @Insert
     fun insertAll(vararg voices:Voice)
+
+    @Update
+    fun update(voice: Voice)
 
     @Delete
     fun delete(voice: Voice)

@@ -7,7 +7,7 @@
     android:background="#f3f3f3">
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/iv_select"
+        android:id="@+id/iv_menu_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
@@ -18,9 +18,9 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_menu"
         android:layout_marginLeft="12dp"
-        app:layout_constraintStart_toEndOf="@id/iv_select"
-        app:layout_constraintTop_toTopOf="@id/iv_select"
-        app:layout_constraintBottom_toBottomOf="@id/iv_select"
+        app:layout_constraintStart_toEndOf="@id/iv_menu_select"
+        app:layout_constraintTop_toTopOf="@id/iv_menu_select"
+        app:layout_constraintBottom_toBottomOf="@id/iv_menu_select"
         app:layout_constraintEnd_toStartOf="@+id/tv_num"
         app:layout_constraintHorizontal_bias="0"
         android:text="流浪军"
@@ -31,8 +31,8 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_num"
         app:layout_constraintStart_toEndOf="@id/tv_menu"
-        app:layout_constraintTop_toTopOf="@id/iv_select"
-        app:layout_constraintBottom_toBottomOf="@id/iv_select"
+        app:layout_constraintTop_toTopOf="@id/iv_menu_select"
+        app:layout_constraintBottom_toBottomOf="@id/iv_menu_select"
         app:layout_constraintEnd_toEndOf="parent"
         android:text="15 条"
         android:textSize="14sp"

@@ -87,20 +87,27 @@ abstract class BaseRecyclerExpandAdapter<T>(override val datas: MutableList<T>) 
      * 显示数据
      */
     override fun showMenuData(position: Int, data: T) {
-        datas.addAll(position + 1, getListByType(getMenuContent(data)))
-        notifyItemRangeInserted(position + 1, getListByType(getMenuContent(data)).size)
-        getListByType(getMenuContent(data)).clear()
+        val list = getListByType(getMenuContent(data))
+        if (!list.isNullOrEmpty()) {
+            datas.addAll(position + 1, list)
+            notifyItemRangeInserted(position + 1, getListByType(getMenuContent(data)).size)
+            getListByType(getMenuContent(data)).clear()
+        }
     }
 
-    fun releaseAllMenuData(){
+    fun releaseAllMenuData() {
         var index = 0
-        while (index != datas.size){
-            if (isMenu(index)){
+        while (index != datas.size && index < datas.size) {
+            if (isMenu(index)) {
                 val list = getListByType(getMenuContent(datas[index]))
-                datas.addAll(index+1,list)
-                index += list.size
-                list.clear()
-            }else {
+                if (!list.isNullOrEmpty()) {
+                    datas.addAll(index + 1, list)
+                    index += list.size
+                    list.clear()
+                }else{
+                    index ++
+                }
+            } else {
                 index++
             }
         }

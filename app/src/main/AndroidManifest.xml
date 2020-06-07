@@ -28,11 +28,19 @@
 
         <activity android:name=".MainActivity"/>
 
-        <activity android:name=".GuideActivity">
+        <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".GuideActivity">
+
+        </activity>
+
+        <activity android:name=".MergeActivity">
+
         </activity>
 
         <activity
@@ -59,8 +67,8 @@
             android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
-        <activity android:name=".LoginActivity">
-        </activity>
+<!--        <activity android:name=".LoginActivity">-->
+<!--        </activity>-->
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -83,7 +83,13 @@
         android:layout_height="wrap_content"
         android:textSize="14sp"
         android:text="确定"
-        android:padding="18dp"/>
+        android:padding="18dp"
+        android:textColor="@color/colorAccent"/>
+
+    <androidx.constraintlayout.widget.Group
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="et_wx_name"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

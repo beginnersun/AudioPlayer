@@ -21,7 +21,7 @@ class PlayUtils:MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener
             mediaPlayer.stop()
         }
         mediaPlayer.setOnCompletionListener (this )
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
         mediaPlayer.setOnErrorListener(this)
         mediaPlayer.setOnPreparedListener ( this )
         try {
@@ -30,7 +30,6 @@ class PlayUtils:MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener
         }catch (t:Throwable){
 
         }
-
     }
 
     fun stop(){
@@ -66,8 +65,10 @@ class PlayUtils:MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener
     }
 
     fun onDestroy(){
-        this.mediaPlayer.stop()
-        this.mediaPlayer.release()
+        if (this.mediaPlayer!=null && this.mediaPlayer.isPlaying) {
+            this.mediaPlayer.stop()
+            this.mediaPlayer.release()
+        }
     }
 
 }

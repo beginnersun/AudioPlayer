@@ -30,7 +30,10 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
     override fun registerLifecycle(lifecycleOwner: LifecycleOwner) {
         lifecycleOwner.lifecycle.addObserver(this)
     }
-    
+
+    var maxSize = 50
+    private val voiceSizeMap = mutableMapOf<String,Int>()
+
     private var onDestroy = false
     private var sumVoice = 0
     private var handler: Handler = object : Handler() {
@@ -102,6 +105,11 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
             return
         }
         if (file.name.toLowerCase().endsWith(".amr")) {
+            val nameCode = convertPathToUserCode(file.path)
+            if (voiceSizeMap[nameCode]!=null && voiceSizeMap[nameCode]!! >= maxSize){  //在voiceFragment页面每个最多只能有50个 voice
+                return
+            }
+
             val message = handler.obtainMessage()
             val voice = VoiceApplication.instance().getAppDataBase().voiceDao()
                 ?.findBySrcPath(file.absolutePath)
@@ -137,6 +145,14 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
         } else {
             handler.obtainMessage(FINISHED).sendToTarget()
         }
+    }
+
+    private fun convertPathToUserCode(path:String):String{
+        val start = path.length -11 - 5 -1   //-11 代表去掉随机生成的7位字符+后缀 -5代表不变的code  -1是因为下标从0开始
+        if (start > 0 && path.length > start && path.length > start + 5) {
+            return path.substring(start, start + 5)
+        }
+        return ""
     }
 
     @SuppressLint("LongLogTag")

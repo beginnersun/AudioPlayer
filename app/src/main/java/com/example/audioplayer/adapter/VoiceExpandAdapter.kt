@@ -58,9 +58,16 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
 
     class MenuHolder(itemView: View):BaseMenuHolder<Voice>(itemView){
         override fun setData(bean: Voice) {
-            getView<AppCompatImageView>(R.id.iv_select).setOnClickListener {
+            getView<AppCompatImageView>(R.id.iv_menu_select).setOnClickListener {
                 bean.open = true
+                bean.selected = !bean.selected
+                if (bean.selected){
+                    (it as AppCompatImageView).setImageResource(R.mipmap.selected)
+                }else{
+                    (it as AppCompatImageView).setImageResource(R.mipmap.un_select)
+                }
                 onMenuChang?.showMenuData(adapterPosition,bean)
+                onClick(it)
             }
             itemView.setOnClickListener {
                 bean.open = !bean.open
@@ -87,20 +94,38 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
         private var timerTask: TimerTask? = null
 
         override fun setData(bean: Voice) {
-            getView<AppCompatTextView>(R.id.tv_name,true).text = "${bean.targetUser}"
-            getView<AppCompatTextView>(R.id.tv_voice_minutes).text = "${bean.minutes}"
-            getView<AppCompatTextView>(R.id.tv_time).text = "${bean.createTime}"
-            getView<FrameLayout>(R.id.fl_play_voice).setOnClickListener {
-                getView<AppCompatImageView>(R.id.iv_voice).setImageResource(
+            val tvName = getView<AppCompatTextView>(R.id.tv_name,true)
+            val tvVoiceMinutes = getView<AppCompatTextView>(R.id.tv_voice_minutes)
+            val tvTime = getView<AppCompatTextView>(R.id.tv_time)
+            val ivSelect = getView<AppCompatImageView>(R.id.iv_select)
+            val flPlayVoice = getView<FrameLayout>(R.id.fl_play_voice)
+            val ivVoice = getView<AppCompatImageView>(R.id.iv_voice)
+            val ivShare = getView<AppCompatImageView>(R.id.iv_share,true)
+            val ivLike = getView<AppCompatImageView>(R.id.iv_like)
+            tvName.text = "${bean.targetUser}"
+            tvVoiceMinutes.text = "${bean.minutes}"
+            tvTime.text = "${bean.createTime}"
+            if(bean.selected) {
+                ivSelect.setImageResource(R.mipmap.selected)
+            }else{
+                ivSelect.setImageResource(R.mipmap.un_select)
+            }
+            if (bean.like){
+                ivLike.setImageResource(R.mipmap.liked)
+            }else{
+                ivLike.setImageResource(R.mipmap.un_like)
+            }
+            flPlayVoice.setOnClickListener {
+                ivVoice.setImageResource(
                     R.drawable.voice_bg
                 )
-                animation = (getView<AppCompatImageView>(R.id.iv_voice).drawable as AnimationDrawable)
+                animation = (ivVoice.drawable as AnimationDrawable)
                 bean.isPlaying = !bean.isPlaying
                 it.tag = bean.isPlaying
                 if (bean.isPlaying) playVoice(bean.minutes) else stopVoice()
                 onClick(it)
             }
-            getView<AppCompatImageView>(R.id.iv_select).setOnClickListener {
+            ivSelect.setOnClickListener {
                 bean.selected = !bean.selected
                 if (bean.selected){
                     (it as AppCompatImageView).setImageResource(R.mipmap.selected)
@@ -109,8 +134,7 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
                 }
                 onClick(it)
             }
-            getView<AppCompatImageView>(R.id.iv_share,true)
-            getView<AppCompatImageView>(R.id.iv_like).setOnClickListener {
+            ivLike.setOnClickListener {
                 bean.like = !bean.like
                 if (bean.like){
                     (it as AppCompatImageView).setImageResource(R.mipmap.liked)

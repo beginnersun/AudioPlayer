@@ -21,9 +21,10 @@ class VoiceApplication:Application() {
     override fun onCreate() {
         super.onCreate()
         UMConfigure.setLogEnabled(true)
+        PlatformConfig.setQQZone("1108208362","Dp7nyNV9Qm78AmcB")
+        PlatformConfig.setQQFileProvider("com.example.audioplayer.fileprovider")
         instance = this
         appDataBase = Room.databaseBuilder(this,AppDataBase::class.java,"voice").allowMainThreadQueries().build()
-        PlatformConfig.setQQZone("1108208362","Dp7nyNV9Qm78AmcB")
 
         UMConfigure.init(this,null,"huawei", UMConfigure.DEVICE_TYPE_PHONE,"")
     }

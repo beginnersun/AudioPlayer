@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.umeng.commonsdk.stateless.UMSLEnvelopeBuild.mContext
 import com.umeng.socialize.UMAuthListener
 import com.umeng.socialize.UMShareAPI
 import com.umeng.socialize.bean.SHARE_MEDIA
@@ -33,6 +32,7 @@ class LoginActivity:AppCompatActivity() {
          * @param platform 平台名称
          */
         override fun onStart(platform: SHARE_MEDIA) {
+            Log.e("OnStart","回调")
             Toast.makeText(this@LoginActivity, "开始", Toast.LENGTH_LONG).show()
         }
 
@@ -49,6 +49,7 @@ class LoginActivity:AppCompatActivity() {
         ) {
             Toast.makeText(this@LoginActivity, "成功了", Toast.LENGTH_LONG).show()
             Log.e("回调信息",data.toString())
+            startActivity(Intent(this@LoginActivity,GuideActivity::class.java))
         }
 
         /**
@@ -58,6 +59,7 @@ class LoginActivity:AppCompatActivity() {
          * @param t 错误原因
          */
         override fun onError(platform: SHARE_MEDIA, action: Int, t: Throwable) {
+            Log.e("OnStart","失败")
             Toast.makeText(this@LoginActivity, "失败：" + t.message, Toast.LENGTH_LONG).show()
         }
 
@@ -67,8 +69,17 @@ class LoginActivity:AppCompatActivity() {
          * @param action 行为序号，开发者用不上
          */
         override fun onCancel(platform: SHARE_MEDIA, action: Int) {
+            Log.e("OnStart","取消")
             Toast.makeText(this@LoginActivity, "取消了", Toast.LENGTH_LONG).show()
         }
     }
 
+    override fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        data: Intent?
+    ) {
+        super.onActivityResult(requestCode, resultCode, data)
+        UMShareAPI.get(this).onActivityResult(requestCode, resultCode, data)
+    }
 }

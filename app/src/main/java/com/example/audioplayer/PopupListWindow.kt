@@ -14,7 +14,7 @@ class PopupListWindow<T>(private val context:Context, private val beans:MutableL
     private var adapter:ListAdapter? = null
     private var onItemClickListener: OnItemClickListener<T>? = null
     private var onDismissListener: OnDismissListener? = null
-    var alpha = 0.2f
+    private var alpha = 0.2f
     var noBackgroundGray = true
 
     fun setOnDismissListener(onDismissListener: OnDismissListener){
