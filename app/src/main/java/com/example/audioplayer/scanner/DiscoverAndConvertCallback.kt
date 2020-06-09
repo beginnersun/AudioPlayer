@@ -26,13 +26,14 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
         const val NOT_FOUND = 3
         const val ALREADY_EXIST = 4
     }
-    
+
     override fun registerLifecycle(lifecycleOwner: LifecycleOwner) {
         lifecycleOwner.lifecycle.addObserver(this)
     }
 
-    var maxSize = 50
-    private val voiceSizeMap = mutableMapOf<String,Int>()
+    override fun unregisterLifecycle(lifecycleOwner: LifecycleOwner) {
+        lifecycleOwner.lifecycle.removeObserver(this)
+    }
 
     private var onDestroy = false
     private var sumVoice = 0
@@ -45,15 +46,9 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
                     onReceived(it)
                 }
                 SUCCESS -> {
-                    val data = msg?.data
-                    val voiceBean = dealMessage(data)
-                    if (voiceBean == null) {
-                        onError("格式转换失败")
-                    } else {
-                        sumVoice++
-                        val vid = VoiceApplication.instance().getAppDataBase().voiceDao()?.insert(voiceBean)
-                        onReceived(voiceBean)
-                    }
+                    val voiceBean = msg.obj as Voice
+                    sumVoice++
+                    onReceived(voiceBean)
                 }
                 FAIL -> {
                     onError(msg?.obj as String)
@@ -70,21 +65,20 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
         }
     }
 
-    private fun dealMessage(data: Bundle): Voice? {
-        val file = File(data.getString("path"))
-        val pcmPath = data.getString("pcm")
-        val mp3Path = data.getString("mp3")
-        Log.e("开始处理", "1")
+    private fun dealMessage(
+        pcmPath: String,
+        mp3Path: String,
+        file: File,
+        userCode: String
+    ): Voice? {
         val changed = changeAmrToMp3(file.absolutePath, pcmPath, mp3Path)
-        Log.e("开始处理", "转换成功")
         var duration = 0
         if (changed) {
             duration = getMediaDuration(mp3Path)
-            Log.e("开始处理", "音频获取成功")
         }
         return if (duration != 0 && changed) {
             Voice.convertToVoiceBean(file).apply {
-                this.user = data.getString("code")
+                this.user = userCode
                 this.mp3Path = mp3Path
                 this.pcmPath = pcmPath
                 this.minutes = duration
@@ -105,13 +99,8 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
             return
         }
         if (file.name.toLowerCase().endsWith(".amr")) {
-            val nameCode = convertPathToUserCode(file.path)
-            if (voiceSizeMap[nameCode]!=null && voiceSizeMap[nameCode]!! >= maxSize){  //在voiceFragment页面每个最多只能有50个 voice
-                return
-            }
-
             val message = handler.obtainMessage()
-            val voice = VoiceApplication.instance().getAppDataBase().voiceDao()
+            var voice = VoiceApplication.instance().getAppDataBase().voiceDao()
                 ?.findBySrcPath(file.absolutePath)
             if (voice != null) {  //已存在
                 message.what = ALREADY_EXIST
@@ -119,16 +108,17 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
                 message.sendToTarget()
                 return
             }
-            message.what = SUCCESS
             val mp3Path = getExternalPath(AUDIO_MP3_TYPE)
             val pcmPath = getExternalPath(AUDIO_PCM_TYPE)
-            message.data = Bundle().apply {
-                putString("path", file.absolutePath)
-                putString("code", userCode)
-                putString("mp3", mp3Path)
-                putString("pcm", pcmPath)
+            voice = dealMessage(pcmPath, mp3Path, file, userCode)
+            if (voice != null){
+                VoiceApplication.instance().getAppDataBase().voiceDao()?.insert(voice)
             }
-            handler.sendMessage(message)
+            message.run {
+                what = SUCCESS
+                obj = voice
+                sendToTarget()
+            }
         } else {
             val message = handler.obtainMessage()
             message.what = DiscoverCallback.FAIL
@@ -145,14 +135,6 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
         } else {
             handler.obtainMessage(FINISHED).sendToTarget()
         }
-    }
-
-    private fun convertPathToUserCode(path:String):String{
-        val start = path.length -11 - 5 -1   //-11 代表去掉随机生成的7位字符+后缀 -5代表不变的code  -1是因为下标从0开始
-        if (start > 0 && path.length > start && path.length > start + 5) {
-            return path.substring(start, start + 5)
-        }
-        return ""
     }
 
     @SuppressLint("LongLogTag")
@@ -191,7 +173,6 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
         onDestroy = true
         handler.removeCallbacksAndMessages(null)
         Log.d(TAG, "onDestroy: ")
-
     }
 
     @SuppressLint("LongLogTag")

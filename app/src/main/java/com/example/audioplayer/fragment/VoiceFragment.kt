@@ -54,16 +54,15 @@ import kotlin.collections.sorted
 import kotlin.collections.toMutableList
 
 
-class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickListener<String>,
+class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
     OnContentDialog.OnDialogClickListener {
 
     private val voiceList = mutableListOf<Voice>()
     private lateinit var voiceAdapter: VoiceExpandAdapter
     private var playingPosition = -1
-    private var uMShare = ShareAction(activity)
     private var popupListWindow: PopupListWindow<String>? = null
     private var timePopupListWindow: PopupListWindow<String>? = null
-    private val groupList = mutableListOf<String>("用户名", "时间")
+    private val groupList = mutableListOf("用户名", "时间")
     private lateinit var timeList: MutableList<String>
     private var groupTag = "用户名"
     private var timeTag = "一个月"
@@ -71,8 +70,7 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
     private var editDialog: OnContentDialog = OnContentDialog.newInstance()
     private val scanDialog:ScanDialog = ScanDialog.newInstance()
     private var isDegreeScan = false
-    private var isShowScanning = false
-    private var sharePopupWindow:SharePopupWindow?= null
+//    private var sharePopupWindow:SharePopupWindow?= null
 
     private val voice: String = "Voice"
 
@@ -87,9 +85,9 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         super.onViewCreated(view, savedInstanceState)
 
         val list = getShareList()
-        sharePopupWindow = SharePopupWindow(context!!,list,ViewGroup.LayoutParams.MATCH_PARENT,
-            dp2px(context!!,300f))
-        sharePopupWindow?.showAtLocation(rootView,Gravity.BOTTOM,0,0)
+//        sharePopupWindow = SharePopupWindow(context!!,list,ViewGroup.LayoutParams.MATCH_PARENT,
+//            dp2px(context!!,300f))
+//        sharePopupWindow?.showAtLocation(rootView,Gravity.BOTTOM,0,0)
 
         timeList = mutableListOf<String>(
             getString(R.string.one_month),
@@ -239,7 +237,9 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
             when (isDegreeScan) {
                 true -> {
                     editDialog.showNotification = getString(R.string.open_degree)
-                    fragmentManager?.let { editDialog.show(it, voice) }
+                    fragmentManager?.let { scanDialog.show(it, "扫描") }
+                    weChatScannerImpl.enoughTime = true
+                    refresh()
                 }
                 false -> {
                     tv_time_type.visibility = View.GONE
@@ -266,6 +266,9 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         return shareBeanList
     }
 
+    /**
+     * 设置被选中tag
+     */
     private fun selectTag(voice: Voice) {
         for (index in voiceList.indices) {
             val bean = voiceList[index]
@@ -276,11 +279,13 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         }
     }
 
+    /**
+     * 合并语音文件
+     */
     private fun mergeVoice() {
-        Toast.makeText(context, "开始合成", Toast.LENGTH_SHORT).show()
         val pcmPaths: MutableList<String> =
             voiceList.filter { it.selected }.map { it.pcmPath }.toMutableList()
-        val job = lifecycleScope.launch(Dispatchers.Main) {
+            lifecycleScope.launch(Dispatchers.Main) {
             val mp3Path = getExternalPath(AUDIO_MP3_TYPE)
             val success = mergePcmToMp3(pcmPaths, mp3Path)
             if (success) {
@@ -290,13 +295,14 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
                         mp3Path
                     )
                 )
-            } else {
-//                Toast.makeText(this@MainActivity, "失败", Toast.LENGTH_LONG).show()
             }
             cancel()
         }
     }
 
+    /**
+     * 检查是否有选中项
+     */
     private fun checkHaveSelected(): Boolean {
         voiceList.forEach {
             if (it.selected) {
@@ -306,6 +312,9 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         return false
     }
 
+    /**
+     * 根据用户名排序
+     */
     private fun dealVoicesByName() {
         removeTag()
         if (Build.VERSION.SDK_INT >= 24) {
@@ -340,6 +349,9 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         voiceAdapter.notifyDataSetChanged()
     }
 
+    /**
+     * 根据时间排序
+     */
     private fun dealVoicesByTime() {
         removeTag()
         if (Build.VERSION.SDK_INT >= 24) {
@@ -372,6 +384,9 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         voiceAdapter.notifyDataSetChanged()
     }
 
+    /**
+     * 分享语音
+     */
     fun shareMusic(path: String) {
         val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
             FileProvider.getUriForFile(context!!,
@@ -388,6 +403,9 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         startActivity(Intent.createChooser(intent,"分享"))
     }
 
+    /**
+     * 播放语音
+     */
     private fun playVoice(position: Int) {
         if (playingPosition != -1) {
             voiceList[playingPosition].isPlaying = false
@@ -402,15 +420,19 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         PlayUtils.instance.stop()
     }
 
+    /**
+     * 扫描回调接口
+     */
     private val scannerCallback = object : DiscoverAndConvertCallback() {
         override fun onReceived(voice: Voice) {
             voice.targetName = context!!.defaultSharedPreferences.getString(
                 voice.targetUser,
                 voice.targetUser
             ) //如果没有则取targetUser也就是code
-            if (scanDialog.isAdded){
-            }
             voiceList.add(voice)
+            if (scanDialog.isAdded){
+                scanDialog.updateScanner(voiceList.size)
+            }
         }
 
         override fun onError(error: String) {
@@ -419,6 +441,7 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         override fun onFinished(num: Int) {
             refreshLayout.finishRefresh()
             refreshLayout.finishLoadMore()
+            Log.e("新增num","${num}")
             if (num != 0) {
                 voiceAdapter.releaseAllMenuData()
                 when (groupTag) {
@@ -429,8 +452,11 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         }
     }
 
+    /**
+     * 开始扫描
+     */
     private fun discoverAmr() { //开始扫描 判断是否是深度扫描 如果是开启弹窗
-        if (isDegreeScan) {
+        if (isDegreeScan) { //深度扫描开启弹窗
             fragmentManager?.let { scanDialog.show(it, "扫描") }
         }
         lifecycleScope.launch(Dispatchers.IO) {
@@ -438,54 +464,14 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         }
     }
 
+    /**
+     * 加载更多
+     */
     private fun loadMore() {
         lifecycleScope.launch(Dispatchers.IO) {
             weChatScannerImpl.count++
             weChatScannerImpl.discoverUsersVoice(scannerCallback)
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        popupListWindow?.let {
-            if (it.isShowing) {
-                it.dismiss()
-            }
-        }
-        timePopupListWindow?.let {
-            if (it.isShowing) {
-                it.dismiss()
-            }
-        }
-        sharePopupWindow?.let {
-            if (it.isShowing){
-                it.dismiss()
-            }
-        }
-        if (editDialog.isAdded) {
-            editDialog.dismiss()
-        }
-        popupListWindow = null
-        timePopupListWindow = null
-        sharePopupWindow = null
-        PlayUtils.instance.onDestroy()
-    }
-
-    override fun onResult(p0: SHARE_MEDIA?) {
-        Toast.makeText(context, "分享成功", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onCancel(p0: SHARE_MEDIA?) {
-        Toast.makeText(context, "取消分享", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onError(p0: SHARE_MEDIA?, p1: Throwable?) {
-        Toast.makeText(context, "分享失败", Toast.LENGTH_SHORT).show()
-        p1?.printStackTrace()
-    }
-
-    override fun onStart(p0: SHARE_MEDIA?) {
-        Toast.makeText(context, "开始分享", Toast.LENGTH_SHORT).show()
     }
 
     override fun onItemClick(view: View, position: Int, data: String) {
@@ -526,10 +512,16 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
         }
     }
 
+    /**
+     * 移除voiceList中分组对应的实例
+     */
     private fun removeTag() {
         voiceList.removeAll { it.itemNum != 0 }
     }
 
+    /**
+     * 刷新
+     */
     private fun refresh() {
         voiceList.clear()
         discoverAmr()
@@ -540,8 +532,10 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
             getString(R.string.delete_info) -> {
             }
             getString(R.string.open_degree) -> {
-                iv_time_type.visibility = View.VISIBLE
-                tv_time_type.visibility = View.VISIBLE
+//                scannerCallback.max
+                refresh()
+//                iv_time_type.visibility = View.VISIBLE
+//                tv_time_type.visibility = View.VISIBLE
             }
             else -> {
                 context?.defaultSharedPreferences?.edit {
@@ -554,4 +548,33 @@ class VoiceFragment : Fragment(), UMShareListener, PopupListWindow.OnItemClickLi
     override fun onCancel(view: View) {
     }
 
+    /**
+     * 停止任务
+     */
+    override fun onDestroyView() {
+        super.onDestroyView()
+        popupListWindow?.let {
+            if (it.isShowing) {
+                it.dismiss()
+            }
+        }
+        timePopupListWindow?.let {
+            if (it.isShowing) {
+                it.dismiss()
+            }
+        }
+//        sharePopupWindow?.let {
+//            if (it.isShowing){
+//                it.dismiss()
+//            }
+//        }
+        if (editDialog.isAdded) {
+            editDialog.dismiss()
+        }
+        popupListWindow = null
+        timePopupListWindow = null
+//        sharePopupWindow = null
+        scannerCallback.unregisterLifecycle(this)
+        PlayUtils.instance.onDestroy()
+    }
 }

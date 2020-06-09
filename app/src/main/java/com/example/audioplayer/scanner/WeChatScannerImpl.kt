@@ -19,6 +19,8 @@ class WeChatScannerImpl(
     var enoughTime: Boolean = false
 ) : WeChatScanner {
 
+    private val sizeMap:MutableMap<String,Int> = mutableMapOf()
+
     override fun discoverUserVoice(userCode: String): MutableList<Voice> {
         val voiceDir = getUserVoiceDir(userCode)
         val voiceList = mutableListOf<Voice>()
@@ -116,7 +118,14 @@ class WeChatScannerImpl(
         } else {
             if (file.name.toLowerCase().endsWith(".amr")) {
                 Log.e("${file.name}", "")
-                if (inSpaceTime(file) || enoughTime) {
+                val targetName = convertPathToUserCode(file.absolutePath)
+                var nameSize = if (sizeMap[targetName]!=null) {
+                    sizeMap[targetName]
+                }else {
+                    0
+                }
+                if ((inSpaceTime(file)) || enoughTime) {
+                    sizeMap[targetName] = (nameSize!!+1)
                     callback.received(file, userCode)
                 }
             }
@@ -136,6 +145,15 @@ class WeChatScannerImpl(
                 voiceList.add(voiceBean)
             }
         }
+    }
+
+
+    private fun convertPathToUserCode(path:String):String{
+        val start = path.length -11 - 5 -1   //-11 代表去掉随机生成的7位字符+后缀 -5代表不变的code  -1是因为下标从0开始
+        if (start > 0 && path.length > start && path.length > start + 5) {
+            return path.substring(start, start + 5)
+        }
+        return ""
     }
 
     /**
