@@ -26,6 +26,10 @@ abstract class BaseRecyclerViewAdapter<T>(protected open val datas: MutableList<
 
     override fun getItemCount(): Int = datas.size
 
+    open fun clearData(){
+        this.datas.clear()
+    }
+
     override fun onBindViewHolder(holder: BaseViewHolder<T>, position: Int) {
         Log.e("更新导致重新Bangding","")
         holder.setData(datas[position])

@@ -76,7 +76,7 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
         if (changed) {
             duration = getMediaDuration(mp3Path)
         }
-        return if (duration != 0 && changed) {
+        return if (duration!=0 && changed) {
             Voice.convertToVoiceBean(file).apply {
                 this.user = userCode
                 this.mp3Path = mp3Path

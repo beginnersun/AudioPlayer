@@ -13,5 +13,11 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+        val list1 = mutableListOf("1","2","3","4","5","4","4")
+        println(list1.size)
+        val list2 = list1.filter { it == "4" }
+        println(list1.size)
+        println(list2.size)
+
     }
 }

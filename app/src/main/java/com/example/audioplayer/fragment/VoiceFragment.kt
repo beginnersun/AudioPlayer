@@ -2,16 +2,13 @@ package com.example.audioplayer.fragment
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
@@ -28,19 +25,14 @@ import com.example.audioplayer.scanner.WeChatScanner.Companion.fiveMonthSpaceTim
 import com.example.audioplayer.scanner.WeChatScanner.Companion.threeMonthSpaceTime
 import com.example.audioplayer.scanner.WeChatScannerImpl
 import com.example.audioplayer.sqlite.Voice
-import com.umeng.socialize.ShareAction
-import com.umeng.socialize.UMShareListener
-import com.umeng.socialize.bean.SHARE_MEDIA
+import com.example.audioplayer.util.rotate180
+import com.scwang.smart.refresh.footer.BallPulseFooter
+import com.scwang.smart.refresh.header.MaterialHeader
 import kotlinx.android.synthetic.main.fragment_voice.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.jetbrains.anko.defaultSharedPreferences
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.List
 import kotlin.collections.MutableList
 import kotlin.collections.filter
 import kotlin.collections.forEach
@@ -54,7 +46,7 @@ import kotlin.collections.sorted
 import kotlin.collections.toMutableList
 
 
-class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
+class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
     OnContentDialog.OnDialogClickListener {
 
     private val voiceList = mutableListOf<Voice>()
@@ -68,9 +60,8 @@ class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
     private var timeTag = "一个月"
     private val weChatScannerImpl = WeChatScannerImpl()
     private var editDialog: OnContentDialog = OnContentDialog.newInstance()
-    private val scanDialog:ScanDialog = ScanDialog.newInstance()
+    private val scanDialog: ScanDialog = ScanDialog.newInstance()
     private var isDegreeScan = false
-//    private var sharePopupWindow:SharePopupWindow?= null
 
     private val voice: String = "Voice"
 
@@ -84,21 +75,18 @@ class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val list = getShareList()
-//        sharePopupWindow = SharePopupWindow(context!!,list,ViewGroup.LayoutParams.MATCH_PARENT,
-//            dp2px(context!!,300f))
-//        sharePopupWindow?.showAtLocation(rootView,Gravity.BOTTOM,0,0)
-
         timeList = mutableListOf<String>(
             getString(R.string.one_month),
             getString(R.string.three_month),
             getString(R.string.five_month)
         )
 
-        voiceAdapter = VoiceExpandAdapter(activity!!, voiceList)
+        voiceAdapter = VoiceExpandAdapter(voiceList)
         scannerCallback.registerLifecycle(this)
         discoverAmr()
 
+        refreshLayout.setRefreshHeader(MaterialHeader(context!!))
+        refreshLayout.setRefreshFooter(BallPulseFooter(context!!))
         refreshLayout.apply {
             setEnableRefresh(true)
             setEnableLoadMore(true)
@@ -163,6 +151,10 @@ class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
                     R.id.tv_name -> {
                         editDialog.initValue = data.targetName
                         fragmentManager?.let { editDialog.show(it, voice) }
+                    }
+                    else -> {
+                        Log.e("跳转","携带参数为 ${data.targetUser}")
+                        TargetUserActivity.intoActivity(context!!, data.targetUser)
                     }
                 }
             }
@@ -233,33 +225,36 @@ class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
         editDialog.onDialogClickListener = this
 
         switch_degree.setOnCheckedChangeListener { _, isChecked ->
-            isDegreeScan = isChecked
-            when (isDegreeScan) {
+            when (isChecked) {
                 true -> {
+                    tv_time_type.visibility = View.VISIBLE
+                    iv_time_type.visibility = View.VISIBLE
                     editDialog.showNotification = getString(R.string.open_degree)
-                    fragmentManager?.let { scanDialog.show(it, "扫描") }
+                    fragmentManager?.let { editDialog.show(it, voice) }
                     weChatScannerImpl.enoughTime = true
-                    refresh()
                 }
                 false -> {
                     tv_time_type.visibility = View.GONE
-                    tv_time_type.visibility = View.GONE
+                    iv_time_type.visibility = View.GONE
                 }
             }
         }
     }
 
-    private fun getShareList():MutableList<ShareBean>{
+    private fun getShareList(): MutableList<ShareBean> {
         val packageManager = context!!.packageManager
         val intent = Intent(Intent.ACTION_SEND)
         intent.addCategory(Intent.CATEGORY_DEFAULT)
         intent.type = "audio/*"
-        val results =  packageManager.queryIntentActivities(intent,PackageManager.MATCH_DEFAULT_ONLY)
+        val results =
+            packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
         val shareBeanList: MutableList<ShareBean> = mutableListOf()
-        if (!results.isNullOrEmpty()){
-            for (result in results){
-                val shareBean = ShareBean(result.loadLabel(packageManager).toString(),
-                    result.activityInfo.packageName,result.loadIcon(packageManager))
+        if (!results.isNullOrEmpty()) {
+            for (result in results) {
+                val shareBean = ShareBean(
+                    result.loadLabel(packageManager).toString(),
+                    result.activityInfo.packageName, result.loadIcon(packageManager)
+                )
                 shareBeanList.add(shareBean)
             }
         }
@@ -285,7 +280,7 @@ class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
     private fun mergeVoice() {
         val pcmPaths: MutableList<String> =
             voiceList.filter { it.selected }.map { it.pcmPath }.toMutableList()
-            lifecycleScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch(Dispatchers.Main) {
             val mp3Path = getExternalPath(AUDIO_MP3_TYPE)
             val success = mergePcmToMp3(pcmPaths, mp3Path)
             if (success) {
@@ -388,19 +383,20 @@ class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
      * 分享语音
      */
     fun shareMusic(path: String) {
-        val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-            FileProvider.getUriForFile(context!!,
-                BuildConfig.APPLICATION_ID+".fileprovider", File(path)
+        val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(
+                context!!,
+                BuildConfig.APPLICATION_ID + ".fileprovider", File(path)
             )
-        }else{
+        } else {
             Uri.parse(path)
         }
-        val intent = Intent(Intent.ACTION_SEND,null)
+        val intent = Intent(Intent.ACTION_SEND, null)
         intent.type = "*/*"
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        Log.e("分享文件位置","$path")
-        intent.putExtra(Intent.EXTRA_STREAM,uri)
-        startActivity(Intent.createChooser(intent,"分享"))
+        Log.e("分享文件位置", "$path")
+        intent.putExtra(Intent.EXTRA_STREAM, uri)
+        startActivity(Intent.createChooser(intent, "分享"))
     }
 
     /**
@@ -425,12 +421,15 @@ class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
      */
     private val scannerCallback = object : DiscoverAndConvertCallback() {
         override fun onReceived(voice: Voice) {
+
+            Log.e("查看Voice信息", "${voice.vid}")
+
             voice.targetName = context!!.defaultSharedPreferences.getString(
                 voice.targetUser,
                 voice.targetUser
             ) //如果没有则取targetUser也就是code
             voiceList.add(voice)
-            if (scanDialog.isAdded){
+            if (scanDialog.isAdded) {
                 scanDialog.updateScanner(voiceList.size)
             }
         }
@@ -441,13 +440,18 @@ class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
         override fun onFinished(num: Int) {
             refreshLayout.finishRefresh()
             refreshLayout.finishLoadMore()
-            Log.e("新增num","${num}")
+            Log.e("新增num", "${num}")
+            if (isDegreeScan && scanDialog.isAdded) {
+                scanDialog.dismiss()
+            }
             if (num != 0) {
                 voiceAdapter.releaseAllMenuData()
                 when (groupTag) {
                     "时间" -> dealVoicesByTime()
                     "用户名" -> dealVoicesByName()
                 }
+            } else {
+                voiceAdapter.notifyDataSetChanged()
             }
         }
     }
@@ -523,7 +527,9 @@ class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
      * 刷新
      */
     private fun refresh() {
-        voiceList.clear()
+        weChatScannerImpl.count = 1
+        weChatScannerImpl.enoughTime = false
+        voiceAdapter.clearData()
         discoverAmr()
     }
 
@@ -532,16 +538,56 @@ class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
             getString(R.string.delete_info) -> {
             }
             getString(R.string.open_degree) -> {
-//                scannerCallback.max
+                isDegreeScan = true
                 refresh()
-//                iv_time_type.visibility = View.VISIBLE
-//                tv_time_type.visibility = View.VISIBLE
             }
             else -> {
+                updateVoiceName(editDialog.initValue, message)
                 context?.defaultSharedPreferences?.edit {
                     putString(editDialog.initValue, message)
                 }
             }
+        }
+    }
+
+    private fun updateVoiceName(oldName: String, newName: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            Log.e("更新比较","$oldName   $newName")
+            if (groupTag == "按用户") {
+                var first = false
+                var startIndex: Int = 0
+                val newList = mutableListOf<Voice>()
+                for (i in voiceList.indices) {
+                    if (voiceList[i].targetName == oldName) {
+                        voiceList[i].targetName = newName
+                        newList.add(voiceList[i])
+                        if (!first) {
+                            first = true
+                            startIndex = i
+                        }
+                    } else if (first) {
+                        break
+                    }
+                }
+                voiceList[startIndex-1].typeName = newName
+                VoiceApplication.instance().getAppDataBase().voiceDao()
+                    ?.updateAll(*newList.toTypedArray())
+                withContext(Dispatchers.Main){
+                    voiceAdapter.notifyItemRangeChanged(startIndex,startIndex+newList.size)
+                }
+
+            } else {  //按时间分组  过滤然后更新 最后全部替换
+                val newList = voiceList.filter { it.targetName == oldName }
+                newList.forEach {
+                    it.targetName = newName
+                }
+                VoiceApplication.instance().getAppDataBase().voiceDao()
+                    ?.updateAll(*newList.toTypedArray())
+                withContext(Dispatchers.Main) {
+                    voiceAdapter.notifyDataSetChanged()
+                }
+            }
+
         }
     }
 
@@ -563,17 +609,11 @@ class VoiceFragment : Fragment(),PopupListWindow.OnItemClickListener<String>,
                 it.dismiss()
             }
         }
-//        sharePopupWindow?.let {
-//            if (it.isShowing){
-//                it.dismiss()
-//            }
-//        }
         if (editDialog.isAdded) {
             editDialog.dismiss()
         }
         popupListWindow = null
         timePopupListWindow = null
-//        sharePopupWindow = null
         scannerCallback.unregisterLifecycle(this)
         PlayUtils.instance.onDestroy()
     }

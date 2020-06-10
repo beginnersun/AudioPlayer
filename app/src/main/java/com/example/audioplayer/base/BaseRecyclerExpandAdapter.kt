@@ -26,6 +26,11 @@ abstract class BaseRecyclerExpandAdapter<T>(override val datas: MutableList<T>) 
         return mHolder
     }
 
+    override fun clearData() {
+        super.clearData()
+        contentData.clear()
+    }
+
     final override fun getItemViewType(position: Int): Int =
         when (isMenu(position)) {
             true -> getMenuViewType(position)

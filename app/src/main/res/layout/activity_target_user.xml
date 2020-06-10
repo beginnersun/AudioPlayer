@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.scwang.smart.refresh.layout.SmartRefreshLayout
+        android:id="@+id/smart_refreshLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/target_recyclerView"/>
+
+    </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:width="120dp"
+        android:background="@drawable/bg_border_delete"
+        android:gravity="center"
+        android:paddingTop="9dp"
+        android:paddingBottom="9dp"
+        android:text="删除"
+        android:textColor="@color/btn_green"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_merge"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="20dp"
+        android:elevation="5px"
+        android:translationZ="5px"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_merge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:width="120dp"
+        android:background="@drawable/bg_solid_merge"
+        android:gravity="center"
+        android:paddingTop="9dp"
+        android:paddingBottom="9dp"
+        android:text="合成"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_delete"
+        app:layout_constraintBottom_toBottomOf="@id/tv_delete"
+        android:elevation="5px"
+        android:translationZ="5px"/>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/option_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="tv_delete,tv_merge"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

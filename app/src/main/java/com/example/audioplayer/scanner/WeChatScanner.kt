@@ -19,6 +19,8 @@ interface WeChatScanner {
 
     fun discoverUsersVoice(callback: WeChatScanner.BaseDiscoverCallback)
 
+    fun discoverUsersVoiceByTargetName(targetUser:String,callback: WeChatScanner.BaseDiscoverCallback)
+
     companion object{
         val userDir = "${Environment.getExternalStorageDirectory().absolutePath}${File.separator}" +
                 "tencent${File.separator}" +

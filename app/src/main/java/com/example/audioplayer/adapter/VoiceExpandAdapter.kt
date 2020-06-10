@@ -18,7 +18,7 @@ import java.util.*
 
 const val MENU_VIEW_TYPE = 0
 const val CONTENT_VIEW_TYPE = 1
-class VoiceExpandAdapter(private val context: Context, private val voices: MutableList<Voice>) :
+class VoiceExpandAdapter(private val voices: MutableList<Voice>) :
     BaseRecyclerExpandAdapter<Voice>(voices) {
     override fun getMenuViewType(position: Int): Int =
         MENU_VIEW_TYPE
@@ -34,17 +34,11 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
         item.typeName == menu.typeName && item.itemNum == 0
 
     override fun getViewHolder(parent: ViewGroup, layoutId: Int,viewType: Int): BaseViewHolder<Voice> {
-        val itemView = LayoutInflater.from(context).inflate(layoutId,parent,false)
+        val itemView = LayoutInflater.from(parent.context).inflate(layoutId,parent,false)
         return when(viewType){
-            MENU_VIEW_TYPE -> MenuHolder(
-                itemView
-            )
-            CONTENT_VIEW_TYPE -> VoiceHolder(
-                itemView
-            )
-            else -> MenuHolder(
-                itemView
-            )
+            MENU_VIEW_TYPE -> MenuHolder(itemView)
+            CONTENT_VIEW_TYPE -> VoiceHolder(itemView)
+            else -> MenuHolder(itemView)
         }
     }
 
@@ -102,7 +96,7 @@ class VoiceExpandAdapter(private val context: Context, private val voices: Mutab
             val ivVoice = getView<AppCompatImageView>(R.id.iv_voice)
             val ivShare = getView<AppCompatImageView>(R.id.iv_share,true)
             val ivLike = getView<AppCompatImageView>(R.id.iv_like)
-            tvName.text = "${bean.targetUser}"
+            tvName.text = "${bean.targetName}"
             tvVoiceMinutes.text = "${bean.minutes}"
             tvTime.text = "${bean.createTime}"
             if(bean.selected) {

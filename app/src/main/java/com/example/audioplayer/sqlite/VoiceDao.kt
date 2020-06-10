@@ -21,7 +21,10 @@ interface VoiceDao {
     fun insertAll(vararg voices:Voice)
 
     @Update
-    fun update(voice: Voice)
+    fun update(voice: Voice):Int
+
+    @Update
+    fun updateAll(vararg voices:Voice):Int
 
     @Delete
     fun delete(voice: Voice)

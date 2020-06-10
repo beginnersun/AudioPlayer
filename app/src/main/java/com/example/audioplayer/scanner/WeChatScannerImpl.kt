@@ -19,8 +19,6 @@ class WeChatScannerImpl(
     var enoughTime: Boolean = false
 ) : WeChatScanner {
 
-    private val sizeMap:MutableMap<String,Int> = mutableMapOf()
-
     override fun discoverUserVoice(userCode: String): MutableList<Voice> {
         val voiceDir = getUserVoiceDir(userCode)
         val voiceList = mutableListOf<Voice>()
@@ -71,6 +69,26 @@ class WeChatScannerImpl(
         }
     }
 
+    /**
+     * 扫描指定好友语音文件
+     */
+    override fun discoverUsersVoiceByTargetName(
+        targetUser: String,
+        callback: WeChatScanner.BaseDiscoverCallback
+    ) {
+        val dirs = discoverUsersDir()
+        if (dirs.isNotEmpty()) {
+            for (dir in dirs) {
+                val userCode = File(dir).name
+                val voiceDir = getUserVoiceDir(userCode)
+                discoverAmr(targetUser,File(voiceDir), userCode, callback)
+            }
+            callback.onCompleted(false)
+        } else {
+            callback.onCompleted(true)
+        }
+    }
+
 
     private fun discoverUserDir(userCode: String): String {
         return "${userDir}${File.separator}$userCode"
@@ -100,10 +118,16 @@ class WeChatScannerImpl(
         return voiceDirs
     }
 
+    /**
+     * 获取当前用户的语音文件存放根目录
+     */
     private fun getUserVoiceDir(userCode: String): String {
         return "${discoverUserDir(userCode)}${File.separator}${voiceName}"
     }
 
+    /**
+     * 扫描当前用户所有语音
+     */
     private fun discoverAmr(
         file: File,
         userCode: String,
@@ -119,13 +143,34 @@ class WeChatScannerImpl(
             if (file.name.toLowerCase().endsWith(".amr")) {
                 Log.e("${file.name}", "")
                 val targetName = convertPathToUserCode(file.absolutePath)
-                var nameSize = if (sizeMap[targetName]!=null) {
-                    sizeMap[targetName]
-                }else {
-                    0
-                }
                 if ((inSpaceTime(file)) || enoughTime) {
-                    sizeMap[targetName] = (nameSize!!+1)
+                    callback.received(file, userCode)
+                }
+            }
+        }
+    }
+
+    /**
+     * 扫描某个好友的语音文件
+     */
+    private fun discoverAmr(
+        targetUser: String,
+        file: File,
+        userCode: String,
+        callback: WeChatScanner.BaseDiscoverCallback
+    ) {
+        if (file.isDirectory) {
+            if (file.listFiles().isNotEmpty()) {
+                for (item in file.listFiles()) {
+                    discoverAmr(targetUser,item, userCode, callback)
+                }
+            }
+        } else {
+            if (file.name.toLowerCase().endsWith(".amr")) {
+                Log.e("${file.name}", "")
+                val targetName = convertPathToUserCode(file.absolutePath)
+                Log.e("扫描结果","$targetName    $targetUser")
+                if ( ((inSpaceTime(file)) || enoughTime) && targetName == targetUser) {
                     callback.received(file, userCode)
                 }
             }
@@ -148,6 +193,9 @@ class WeChatScannerImpl(
     }
 
 
+    /**
+     * 根据语音文件名 寻找对应用户名Code
+     */
     private fun convertPathToUserCode(path:String):String{
         val start = path.length -11 - 5 -1   //-11 代表去掉随机生成的7位字符+后缀 -5代表不变的code  -1是因为下标从0开始
         if (start > 0 && path.length > start && path.length > start + 5) {

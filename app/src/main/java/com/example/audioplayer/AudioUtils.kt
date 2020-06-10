@@ -8,6 +8,7 @@ import android.content.Context
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.os.Environment
+import android.util.Log
 import com.reinhard.wcvcodec.WcvCodec
 import java.io.File
 import java.io.FileInputStream
@@ -34,6 +35,7 @@ fun changeAmrToMp3(sourcePath:String,tmpPcmPath:String,targetMp3Path:String):Boo
 }
 /**
  * 获取音频文件播放时长
+ * 大于0小于1 是为了防止因为时间过短而被忽略
  */
 fun getMediaDuration(path:String):Int{
     val extractor = MediaExtractor()
@@ -43,7 +45,12 @@ fun getMediaDuration(path:String):Int{
         return 0
     }
     val format = extractor.getTrackFormat(0)
-    return (format.getLong(MediaFormat.KEY_DURATION)/1000/1000).toInt()
+    val time = format.getLong(MediaFormat.KEY_DURATION)*1f/1000/1000
+    return if (time >0 && time <1){
+        1
+    }else{
+        time.toInt()
+    }
 }
 /**
  * 合并pcm并且转换为mp3
