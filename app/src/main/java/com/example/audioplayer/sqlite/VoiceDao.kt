@@ -14,6 +14,9 @@ interface VoiceDao {
     @Query("SELECT * from voice WHERE userCode = :userName")
     fun findByUserName(userName:String):MutableList<Voice>
 
+    @Query("SELECT * from voice WHERE merge = :isMerge")
+    fun findMergeVoice(isMerge:Int):MutableList<Voice>
+
     @Insert
     fun insert(voice:Voice)
 

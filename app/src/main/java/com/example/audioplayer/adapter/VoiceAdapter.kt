@@ -1,6 +1,5 @@
 package com.example.audioplayer.adapter
 
-import android.content.Context
 import android.graphics.drawable.AnimationDrawable
 import android.util.Log
 import android.view.LayoutInflater

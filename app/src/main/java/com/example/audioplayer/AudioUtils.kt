@@ -56,13 +56,18 @@ fun getMediaDuration(path:String):Int{
  * 合并pcm并且转换为mp3
  */
 fun mergePcmToMp3(fileList:MutableList<String>,outPutPath:String):Boolean{
+    return mergePcmToMp3(fileList, getExternalPath(AUDIO_PCM_TYPE),outPutPath)
+}
+/**
+ * 合并pcm并且转换为mp3 pcm自己提供
+ */
+fun mergePcmToMp3(fileList:MutableList<String>,outPcmPath: String,outPutPath:String):Boolean{
     if (fileList.isNullOrEmpty()){
         return false
     }
-    val mergePcmPath = getExternalPath(AUDIO_PCM_TYPE)
-    mergePcmFiles(fileList, mergePcmPath)
+    mergePcmFiles(fileList, outPcmPath)
     val amrPath = getExternalPath("amr")
-    val pcmToAmr = changePcmToAmr(mergePcmPath,amrPath)
+    val pcmToAmr = changePcmToAmr(outPcmPath,amrPath)
     if (!pcmToAmr){
         return false
     }

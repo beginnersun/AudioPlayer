@@ -33,6 +33,7 @@ import kotlinx.coroutines.*
 import org.jetbrains.anko.defaultSharedPreferences
 import java.io.File
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.collections.MutableList
 import kotlin.collections.filter
 import kotlin.collections.forEach
@@ -43,7 +44,6 @@ import kotlin.collections.removeAll
 import kotlin.collections.sortBy
 import kotlin.collections.sortWith
 import kotlin.collections.sorted
-import kotlin.collections.toMutableList
 
 
 class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
@@ -213,7 +213,8 @@ class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
             it.isClickable = false
         }
         tv_merge.setOnClickListener {
-            mergeVoice()
+            MergeActivity.intoMergeActivity(context!!,
+                voiceList.filter { it.selected } as ArrayList<Voice>)
         }
         tv_delete.setOnClickListener {
             editDialog.run {
@@ -274,26 +275,7 @@ class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
         }
     }
 
-    /**
-     * 合并语音文件
-     */
-    private fun mergeVoice() {
-        val pcmPaths: MutableList<String> =
-            voiceList.filter { it.selected }.map { it.pcmPath }.toMutableList()
-        lifecycleScope.launch(Dispatchers.Main) {
-            val mp3Path = getExternalPath(AUDIO_MP3_TYPE)
-            val success = mergePcmToMp3(pcmPaths, mp3Path)
-            if (success) {
-                startActivity(
-                    Intent(activity!!, MergeActivity::class.java).putExtra(
-                        "path",
-                        mp3Path
-                    )
-                )
-            }
-            cancel()
-        }
-    }
+
 
     /**
      * 检查是否有选中项

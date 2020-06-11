@@ -9,9 +9,9 @@ import java.io.File
 @Entity
 class Voice() :Comparable<Voice>,Parcelable{
     @PrimaryKey(autoGenerate = true) var vid:Long = 0
-    var user:String = ""
+    var user:String = ""  //当前用户对应的code
     var userCode:String = ""
-    var targetUser:String = "" //截取的code串
+    var targetUser:String = "" //用户好友对应的code  截取的code串
     var targetName:String = ""//设置的名字 默认是对应code的截取串
     var minutes:Int = 0
     var createTime:String = ""
@@ -20,6 +20,11 @@ class Voice() :Comparable<Voice>,Parcelable{
     var pcmPath:String = ""
     var like:Boolean = false
     var time:Long = 0
+        set(value){
+            field = value
+            createTime = Utils.getVoiceTime(field)
+        }
+    var merge:Int = NORMAL_VOICE  //默认
     @Ignore var selected:Boolean = false  //是否被选中
     @Ignore var isPlaying:Boolean = false //是否正在播放
 
@@ -100,6 +105,9 @@ class Voice() :Comparable<Voice>,Parcelable{
     }
 
     companion object CREATOR : Parcelable.Creator<Voice> {
+
+        const val MERGE_VOICE = 1
+        const val NORMAL_VOICE = 2
 
         private const val codeLength = 5
 
