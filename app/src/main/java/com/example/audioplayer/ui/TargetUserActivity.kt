@@ -1,4 +1,4 @@
-package com.example.audioplayer
+package com.example.audioplayer.ui
 
 import android.content.Context
 import android.content.Intent
@@ -12,12 +12,18 @@ import androidx.core.content.FileProvider
 import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.audioplayer.BuildConfig
+import com.example.audioplayer.dialog.OnContentDialog
+import com.example.audioplayer.R
+import com.example.audioplayer.VoiceApplication
+import com.example.audioplayer.VoiceConfig
 import com.example.audioplayer.adapter.VoiceAdapter
 import com.example.audioplayer.base.BaseRecyclerViewAdapter
 import com.example.audioplayer.scanner.DiscoverAndConvertCallback
 import com.example.audioplayer.scanner.WeChatScanner
 import com.example.audioplayer.scanner.WeChatScannerImpl
 import com.example.audioplayer.sqlite.Voice
+import com.example.audioplayer.util.PlayUtils
 import com.scwang.smart.refresh.footer.BallPulseFooter
 import com.scwang.smart.refresh.header.MaterialHeader
 import com.umeng.socialize.utils.DeviceConfigInternal.context
@@ -34,13 +40,15 @@ class TargetUserActivity:AppCompatActivity() {
     private val weChatScannerImpl: WeChatScannerImpl = WeChatScannerImpl()
     private val voiceList:MutableList<Voice> = mutableListOf()
     private var voiceAdapter:VoiceAdapter = VoiceAdapter(voiceList)
-    private var editDialog: OnContentDialog = OnContentDialog.newInstance()
+    private var editDialog: OnContentDialog =
+        OnContentDialog.newInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_target_user)
         discoverCallback.registerLifecycle(this)
         targetUserCode = intent!!.getStringExtra(KEY_USER_CODE)
+        tv_title.text = VoiceConfig.instance.getNameByCode(targetUserCode)
 
         smart_refreshLayout.apply {
             setRefreshHeader(MaterialHeader(this@TargetUserActivity))
@@ -66,7 +74,8 @@ class TargetUserActivity:AppCompatActivity() {
     }
 
     private fun initListener(){
-        editDialog.onDialogClickListener = object :OnContentDialog.OnDialogClickListener{
+        editDialog.onDialogClickListener = object :
+            OnContentDialog.OnDialogClickListener {
             override fun onOkClick(view: View, message: String) {
                 when(message){
                     getString(R.string.delete_info) -> {
@@ -115,7 +124,8 @@ class TargetUserActivity:AppCompatActivity() {
                         }
                     }
                     R.id.iv_like -> {
-                        VoiceApplication.instance().getAppDataBase().voiceDao()?.update(data)
+                        VoiceApplication.instance()
+                            .getAppDataBase().voiceDao()?.update(data)
                     }
                     R.id.iv_select -> {
                         if (checkHaveSelected()) {
@@ -129,7 +139,9 @@ class TargetUserActivity:AppCompatActivity() {
                     }
                     R.id.tv_name -> {
                         editDialog.initValue = data.targetName
-                        supportFragmentManager?.let { editDialog.show(it, showTag) }
+                        supportFragmentManager?.let { editDialog.show(it,
+                            showTag
+                        ) }
                     }
                 }
             }
@@ -143,7 +155,7 @@ class TargetUserActivity:AppCompatActivity() {
     fun shareMusic(path: String) {
         val uri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
             FileProvider.getUriForFile(context!!,
-                BuildConfig.APPLICATION_ID+".fileprovider", File(path)
+                BuildConfig.APPLICATION_ID +".fileprovider", File(path)
             )
         }else{
             Uri.parse(path)
@@ -211,6 +223,7 @@ class TargetUserActivity:AppCompatActivity() {
     private fun refresh(){
         weChatScannerImpl.count = 0
         voiceAdapter.clearData()
+        discoverVoice()
     }
 
     private fun loadMore(){
@@ -232,7 +245,8 @@ class TargetUserActivity:AppCompatActivity() {
         const val showTag = "targetUser"
 
         fun intoActivity(context: Context,userCode:String){
-            context.startActivity(Intent(context,TargetUserActivity::class.java).putExtra(
+            context.startActivity(Intent(context,
+                TargetUserActivity::class.java).putExtra(
                 KEY_USER_CODE,userCode))
         }
     }

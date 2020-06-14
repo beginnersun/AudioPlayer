@@ -2,13 +2,13 @@
 @file:JvmName("AudioUtilsKt")
 @file:JvmMultifileClass
 
-package com.example.audioplayer
+package com.example.audioplayer.util
 
 import android.content.Context
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.os.Environment
-import android.util.Log
+import com.example.audioplayer.VoiceConfig
 import com.reinhard.wcvcodec.WcvCodec
 import java.io.File
 import java.io.FileInputStream
@@ -56,7 +56,11 @@ fun getMediaDuration(path:String):Int{
  * 合并pcm并且转换为mp3
  */
 fun mergePcmToMp3(fileList:MutableList<String>,outPutPath:String):Boolean{
-    return mergePcmToMp3(fileList, getExternalPath(AUDIO_PCM_TYPE),outPutPath)
+    return mergePcmToMp3(
+        fileList,
+        getExternalPath(AUDIO_PCM_TYPE),
+        outPutPath
+    )
 }
 /**
  * 合并pcm并且转换为mp3 pcm自己提供
@@ -67,11 +71,16 @@ fun mergePcmToMp3(fileList:MutableList<String>,outPcmPath: String,outPutPath:Str
     }
     mergePcmFiles(fileList, outPcmPath)
     val amrPath = getExternalPath("amr")
-    val pcmToAmr = changePcmToAmr(outPcmPath,amrPath)
+    val pcmToAmr =
+        changePcmToAmr(outPcmPath, amrPath)
     if (!pcmToAmr){
         return false
     }
-    return changeAmrToMp3(amrPath, getExternalPath(AUDIO_PCM_TYPE),outPutPath)
+    return changeAmrToMp3(
+        amrPath,
+        getExternalPath(AUDIO_PCM_TYPE),
+        outPutPath
+    )
 }
 /**
  * @param context 此处的context最好使用applicationContext
@@ -82,24 +91,37 @@ fun changeAmrToMp3AndMerge(context: Context,sourcePaths:MutableList<String>,merg
     for (source in sourcePaths){
         val tmpPcm = getTmpPcmPath(context)
         val targetMp3 = getTargetPath(context)
-        val success = changeAmrToMp3(source,tmpPcm,targetMp3)
+        val success = changeAmrToMp3(
+            source,
+            tmpPcm,
+            targetMp3
+        )
         if (!success){
             return false
         }
         tmPcmList.add(tmpPcm)
     }
     val resultTmpPcm = "${Environment.getExternalStorageDirectory()}${File.separator}mediaCode${File.separator}ccffccffccff.pcm"
-    mergePcmFiles(tmPcmList,resultTmpPcm)
+    mergePcmFiles(tmPcmList, resultTmpPcm)
     val tmpAmrPath = getTmpAmrPath(context)
-    val pcmToAmr = changePcmToAmr(resultTmpPcm, tmpAmrPath)
+    val pcmToAmr =
+        changePcmToAmr(resultTmpPcm, tmpAmrPath)
     if (!pcmToAmr){
         return false
     }
-    return changeAmrToMp3(tmpAmrPath, getTmpPcmPath(context), mergeMp3Path)
+    return changeAmrToMp3(
+        tmpAmrPath,
+        getTmpPcmPath(context),
+        mergeMp3Path
+    )
 }
 
 fun changeAmrToMp3(sourcePath:String,context: Context):Boolean{
-    return changeAmrToMp3(sourcePath, getTmpPcmPath(context), getTargetPath(context))
+    return changeAmrToMp3(
+        sourcePath,
+        getTmpPcmPath(context),
+        getTargetPath(context)
+    )
 }
 
 private fun changePcmToAmr(pcmPath:String,amrPath:String):Boolean{
@@ -121,7 +143,10 @@ private fun mergePcmFiles(fileList:MutableList<String>,outPutPath:String){
     val outPutStream = FileOutputStream(targetFile)
     for (file in fileList){
         if (File(file).exists()){
-            writeByteToOutPutStream(outPutStream,file)
+            writeByteToOutPutStream(
+                outPutStream,
+                file
+            )
         }
     }
     outPutStream.flush()
@@ -206,7 +231,8 @@ private fun getDirPathOrCreate(path:String):String =
     }
 fun getExternalDir(type:String) =
     when(type){
-        "pcm" -> getDirPathOrCreate("${Environment.getExternalStorageDirectory()}${File.separator}audioPlayer${File.separator}pcm")
-        "mp3" -> getDirPathOrCreate("${Environment.getExternalStorageDirectory()}${File.separator}audioPlayer${File.separator}mp3")
-        else -> getDirPathOrCreate("${Environment.getExternalStorageDirectory()}${File.separator}audioPlayer")
+        "pcm" -> getDirPathOrCreate("${VoiceConfig.instance.voiceSavePath}pcm")
+        "mp3" -> getDirPathOrCreate("${VoiceConfig.instance.voiceSavePath}mp3")
+        "amr" -> getDirPathOrCreate("${VoiceConfig.instance.voiceSavePath}amr")
+        else -> getDirPathOrCreate("${VoiceConfig.instance.voiceSavePath}")
     }

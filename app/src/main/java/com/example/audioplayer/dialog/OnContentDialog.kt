@@ -1,10 +1,11 @@
-package com.example.audioplayer
+package com.example.audioplayer.dialog
 
 import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import com.example.audioplayer.R
 import kotlinx.android.synthetic.main.dialog_one_content.*
 
 
@@ -39,7 +40,8 @@ class OnContentDialog private constructor(private val title: String, private val
         super.onStart()
     }
 
-    override fun getTheme(): Int = R.style.custom_dialog_style
+    override fun getTheme(): Int =
+        R.style.custom_dialog_style
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -91,7 +93,11 @@ class OnContentDialog private constructor(private val title: String, private val
 
     companion object {
         fun newInstance(title:String = "设置对应微信名",okMessage: String = "确定",cancelMessage: String="取消"): OnContentDialog =
-            OnContentDialog(title,okMessage,cancelMessage)
+            OnContentDialog(
+                title,
+                okMessage,
+                cancelMessage
+            )
     }
 
     interface OnDialogClickListener {

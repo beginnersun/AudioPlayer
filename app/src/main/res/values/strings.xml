@@ -7,4 +7,9 @@
     <string name="edit_wx_name">修改微信好友名称</string>
     <string name="open_degree">深度搜索耗时较长，确认开启深度搜索吗？</string>
     <string name="delete_info">除之后不可恢复，确认要删除吗？</string>
+    <string name="setting">设置</string>
+    <string name="collect">我的收藏</string>
+    <string name="download_dir">微信导出目录</string>
+    <string name="wx_voice_dir">微信语音目录</string>
+    <string name="current_voice_info">当前语音信息</string>
 </resources>

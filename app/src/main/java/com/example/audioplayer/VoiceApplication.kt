@@ -25,7 +25,7 @@ class VoiceApplication:Application() {
         PlatformConfig.setQQFileProvider("com.example.audioplayer.fileprovider")
         instance = this
         appDataBase = Room.databaseBuilder(this,AppDataBase::class.java,"voice").allowMainThreadQueries().build()
-
+        VoiceConfig.instance.install()
         UMConfigure.init(this,null,"huawei", UMConfigure.DEVICE_TYPE_PHONE,"")
     }
 

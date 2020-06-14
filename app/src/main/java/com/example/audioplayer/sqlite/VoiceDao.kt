@@ -17,6 +17,9 @@ interface VoiceDao {
     @Query("SELECT * from voice WHERE merge = :isMerge")
     fun findMergeVoice(isMerge:Int):MutableList<Voice>
 
+    @Query("SELECT * from voice WHERE `like` = :like")
+    fun findCollectVoice(like:Boolean):MutableList<Voice>
+
     @Insert
     fun insert(voice:Voice)
 

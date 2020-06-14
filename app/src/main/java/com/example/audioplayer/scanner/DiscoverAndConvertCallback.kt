@@ -1,8 +1,6 @@
 package com.example.audioplayer.scanner
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.util.Log
@@ -11,6 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.example.audioplayer.*
 import com.example.audioplayer.sqlite.Voice
+import com.example.audioplayer.util.*
 import java.io.File
 
 /**
@@ -71,7 +70,11 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
         file: File,
         userCode: String
     ): Voice? {
-        val changed = changeAmrToMp3(file.absolutePath, pcmPath, mp3Path)
+        val changed = changeAmrToMp3(
+            file.absolutePath,
+            pcmPath,
+            mp3Path
+        )
         var duration = 0
         if (changed) {
             duration = getMediaDuration(mp3Path)
@@ -108,8 +111,10 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
                 message.sendToTarget()
                 return
             }
-            val mp3Path = getExternalPath(AUDIO_MP3_TYPE)
-            val pcmPath = getExternalPath(AUDIO_PCM_TYPE)
+            val mp3Path =
+                getExternalPath(AUDIO_MP3_TYPE)
+            val pcmPath =
+                getExternalPath(AUDIO_PCM_TYPE)
             voice = dealMessage(pcmPath, mp3Path, file, userCode)
             if (voice != null){
                 VoiceApplication.instance().getAppDataBase().voiceDao()?.insert(voice)

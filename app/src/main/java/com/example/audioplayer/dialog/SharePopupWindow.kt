@@ -1,4 +1,4 @@
-package com.example.audioplayer
+package com.example.audioplayer.dialog
 
 import android.app.Activity
 import android.content.Context
@@ -10,6 +10,7 @@ import android.view.WindowManager
 import android.widget.PopupWindow
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.audioplayer.R
 import com.example.audioplayer.adapter.ShareAdapter
 import com.example.audioplayer.base.BaseRecyclerViewAdapter
 import com.example.audioplayer.bean.ShareBean

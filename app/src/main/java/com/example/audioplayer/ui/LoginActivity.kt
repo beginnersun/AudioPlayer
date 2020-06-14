@@ -1,4 +1,4 @@
-package com.example.audioplayer
+package com.example.audioplayer.ui
 
 import android.content.Intent
 import android.media.MediaExtractor
@@ -9,6 +9,7 @@ import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.audioplayer.R
 import com.reinhard.wcvcodec.WcvCodec
 import com.umeng.socialize.UMAuthListener
 import com.umeng.socialize.UMShareAPI
@@ -111,7 +112,8 @@ class LoginActivity:AppCompatActivity() {
 //            UMShareAPI.get(this).getPlatformInfo(this,SHARE_MEDIA.QQ,authListener)
 //        }
         tv_login.setOnClickListener {
-            startActivity(Intent(this@LoginActivity,MainActivity::class.java))
+            startActivity(Intent(this@LoginActivity,
+                MainActivity::class.java))
         }
 
     }
@@ -161,7 +163,8 @@ class LoginActivity:AppCompatActivity() {
         ) {
             Toast.makeText(this@LoginActivity, "成功了", Toast.LENGTH_LONG).show()
             Log.e("回调信息",data.toString())
-            startActivity(Intent(this@LoginActivity,GuideActivity::class.java))
+            startActivity(Intent(this@LoginActivity,
+                GuideActivity::class.java))
         }
 
         /**

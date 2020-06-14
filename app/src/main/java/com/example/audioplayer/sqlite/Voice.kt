@@ -77,9 +77,6 @@ class Voice() :Comparable<Voice>,Parcelable{
             }
         }
 
-    override fun toString(): String =
-        "$targetName  $itemNum  $minutes  $path"
-
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeLong(vid)
         parcel.writeString(user)
@@ -103,6 +100,11 @@ class Voice() :Comparable<Voice>,Parcelable{
     override fun describeContents(): Int {
         return 0
     }
+
+    override fun toString(): String {
+        return "Voice(vid=$vid, user='$user', userCode='$userCode', targetUser='$targetUser', targetName='$targetName', minutes=$minutes, createTime='$createTime', path='$path', mp3Path='$mp3Path', pcmPath='$pcmPath', like=$like, time=$time, merge=$merge, selected=$selected, isPlaying=$isPlaying, typeName='$typeName', itemNum=$itemNum, open=$open)"
+    }
+
 
     companion object CREATOR : Parcelable.Creator<Voice> {
 

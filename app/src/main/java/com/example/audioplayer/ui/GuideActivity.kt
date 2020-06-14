@@ -1,4 +1,4 @@
-package com.example.audioplayer
+package com.example.audioplayer.ui
 
 import android.Manifest
 import android.content.Intent

@@ -14,8 +14,14 @@ import com.example.audioplayer.base.BaseViewHolder
 import com.example.audioplayer.sqlite.Voice
 import java.util.*
 
-class VoiceAdapter( private val voices: MutableList<Voice>) :
-    BaseRecyclerViewAdapter<Voice>(voices){
+class VoiceAdapter(private val voices: MutableList<Voice>) :
+    BaseRecyclerViewAdapter<Voice>(voices) {
+
+    private var isShowSelected = false
+
+    fun showSelected(showSelected: Boolean) {
+        isShowSelected = showSelected
+    }
 
     override fun getLayoutId(viewType: Int): Int =
         R.layout.item_voice
@@ -27,36 +33,43 @@ class VoiceAdapter( private val voices: MutableList<Voice>) :
     ): BaseViewHolder<Voice> {
         return VoiceHolder(
             LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
-        )
+        ).apply {
+            showSelected = isShowSelected
+        }
     }
 
-    class VoiceHolder(itemView:View):BaseViewHolder<Voice>(itemView){
-
+    class VoiceHolder(itemView: View) : BaseViewHolder<Voice>(itemView) {
 
         private val timer: Timer = Timer()
         private var animation: AnimationDrawable? = null
         private var timerTask: TimerTask? = null
+        var showSelected = false
 
         override fun setData(bean: Voice) {
-            val tvName = getView<AppCompatTextView>(R.id.tv_name,true)
+            val tvName = getView<AppCompatTextView>(R.id.tv_name, true)
             val tvVoiceMinutes = getView<AppCompatTextView>(R.id.tv_voice_minutes)
             val tvTime = getView<AppCompatTextView>(R.id.tv_time)
             val ivSelect = getView<AppCompatImageView>(R.id.iv_select)
             val flPlayVoice = getView<FrameLayout>(R.id.fl_play_voice)
             val ivVoice = getView<AppCompatImageView>(R.id.iv_voice)
-            val ivShare = getView<AppCompatImageView>(R.id.iv_share,true)
+            val ivShare = getView<AppCompatImageView>(R.id.iv_share, true)
             val ivLike = getView<AppCompatImageView>(R.id.iv_like)
+            ivSelect.visibility = if (showSelected) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
             tvName.text = "${bean.targetName}"
             tvVoiceMinutes.text = "${bean.minutes}"
             tvTime.text = "${bean.createTime}"
-            if(bean.selected) {
+            if (bean.selected) {
                 ivSelect.setImageResource(R.mipmap.selected)
-            }else{
+            } else {
                 ivSelect.setImageResource(R.mipmap.un_select)
             }
-            if (bean.like){
+            if (bean.like) {
                 ivLike.setImageResource(R.mipmap.liked)
-            }else{
+            } else {
                 ivLike.setImageResource(R.mipmap.un_like)
             }
             flPlayVoice.setOnClickListener {
@@ -71,18 +84,18 @@ class VoiceAdapter( private val voices: MutableList<Voice>) :
             }
             ivSelect.setOnClickListener {
                 bean.selected = !bean.selected
-                if (bean.selected){
+                if (bean.selected) {
                     (it as AppCompatImageView).setImageResource(R.mipmap.selected)
-                }else{
+                } else {
                     (it as AppCompatImageView).setImageResource(R.mipmap.un_select)
                 }
                 onClick(it)
             }
             ivLike.setOnClickListener {
                 bean.like = !bean.like
-                if (bean.like){
+                if (bean.like) {
                     (it as AppCompatImageView).setImageResource(R.mipmap.liked)
-                }else{
+                } else {
                     (it as AppCompatImageView).setImageResource(R.mipmap.un_like)
                 }
                 onClick(it)
@@ -90,10 +103,10 @@ class VoiceAdapter( private val voices: MutableList<Voice>) :
 
         }
 
-        private fun playVoice(duration:Int){
-            timerTask = object : TimerTask(){
+        private fun playVoice(duration: Int) {
+            timerTask = object : TimerTask() {
                 override fun run() {
-                    Log.e("停止动画","停止")
+                    Log.e("停止动画", "停止")
                     animation?.stop()
                     getView<AppCompatImageView>(R.id.iv_voice).setImageResource(
                         R.drawable.voice_bg
@@ -101,21 +114,20 @@ class VoiceAdapter( private val voices: MutableList<Voice>) :
                 }
             }
             animation?.start()
-            timer.schedule(timerTask,duration*1000.toLong())
+            timer.schedule(timerTask, duration * 1000.toLong())
         }
 
-        private fun stopVoice(){
+        private fun stopVoice() {
             timerTask?.cancel()
             animation?.stop()
         }
 
-        override fun onRelease(){
+        override fun onRelease() {
             animation?.stop()
             timerTask?.cancel()
             timer.cancel()
         }
     }
-
 
 
 }

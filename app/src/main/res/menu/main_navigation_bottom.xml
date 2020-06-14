@@ -16,13 +16,6 @@
         />
 
     <item
-        android:id="@+id/item_more"
-        android:title="发现"
-        android:enabled="true"
-        android:icon="@mipmap/look"
-        />
-
-    <item
         android:id="@+id/item_my"
         android:title="我的"
         android:enabled="true"

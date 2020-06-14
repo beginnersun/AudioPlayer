@@ -1,4 +1,4 @@
-package com.example.audioplayer
+package com.example.audioplayer.util
 
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -6,7 +6,7 @@ import android.media.MediaPlayer
 class PlayUtils:MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener {
 
     private var mediaPlayer = MediaPlayer()
-    private var playListener:OnPlayChangedListener? = null
+    private var playListener: OnPlayChangedListener? = null
 
     private constructor()
 
@@ -68,6 +68,7 @@ class PlayUtils:MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener
         if (this.mediaPlayer!=null && this.mediaPlayer.isPlaying) {
             this.mediaPlayer.stop()
             this.mediaPlayer.release()
+            this.playListener = null
         }
     }
 

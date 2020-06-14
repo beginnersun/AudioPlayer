@@ -1,4 +1,4 @@
-package com.example.audioplayer
+package com.example.audioplayer.dialog
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.bumptech.glide.Glide
+import com.example.audioplayer.R
 import kotlinx.android.synthetic.main.dialog_scan.*
 
 class ScanDialog private constructor():DialogFragment() {
@@ -33,7 +34,7 @@ class ScanDialog private constructor():DialogFragment() {
     }
 
     companion object{
-        fun newInstance():ScanDialog{
+        fun newInstance(): ScanDialog {
             return ScanDialog()
         }
     }
