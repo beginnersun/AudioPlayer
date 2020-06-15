@@ -71,6 +71,5 @@ class DatePickerDialog private constructor(): DialogFragment() {
                 this.maxDate = maxDate
                 this.minDate = minDate
             }
-
     }
 }

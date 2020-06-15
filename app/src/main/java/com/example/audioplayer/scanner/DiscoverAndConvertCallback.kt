@@ -27,7 +27,7 @@ abstract class DiscoverAndConvertCallback : WeChatScanner.BaseDiscoverCallback {
     }
 
     override fun registerLifecycle(lifecycleOwner: LifecycleOwner) {
-        lifecycleOwner.lifecycle.addObserver(this)
+        super.registerLifecycle(lifecycleOwner)
     }
 
     override fun unregisterLifecycle(lifecycleOwner: LifecycleOwner) {

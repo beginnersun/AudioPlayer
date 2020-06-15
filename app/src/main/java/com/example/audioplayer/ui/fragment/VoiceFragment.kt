@@ -1,15 +1,12 @@
 package com.example.audioplayer.ui.fragment
 
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.DatePicker
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
@@ -28,6 +25,7 @@ import com.example.audioplayer.scanner.WeChatScanner.Companion.defaultSpaceTime
 import com.example.audioplayer.scanner.WeChatScanner.Companion.fiveMonthSpaceTime
 import com.example.audioplayer.scanner.WeChatScanner.Companion.threeMonthSpaceTime
 import com.example.audioplayer.scanner.WeChatScannerImpl
+import com.example.audioplayer.scanner.strategy.TimeSpaceStrategy
 import com.example.audioplayer.sqlite.Voice
 import com.example.audioplayer.ui.MainActivity
 import com.example.audioplayer.ui.MainActivity.Companion.TAG_MERGE_FRAGMENT
@@ -40,7 +38,6 @@ import com.scwang.smart.refresh.header.MaterialHeader
 import kotlinx.android.synthetic.main.fragment_voice.*
 import kotlinx.coroutines.*
 import org.jetbrains.anko.defaultSharedPreferences
-import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.MutableList
@@ -66,7 +63,7 @@ class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
     private lateinit var timeList: MutableList<String>
     private var groupTag = "用户名"
     private var timeTag = "一个月"
-    private val weChatScannerImpl = WeChatScannerImpl()
+    private val weChatScannerImpl = WeChatScannerImpl(TimeSpaceStrategy())
     private var editDialog: OnContentDialog = OnContentDialog.newInstance()
     private val scanDialog: ScanDialog = ScanDialog.newInstance()
     private var isDegreeScan = false
@@ -94,12 +91,9 @@ class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
         refreshLayout.setRefreshFooter(BallPulseFooter(context!!))
         refreshLayout.apply {
             setEnableRefresh(true)
-            setEnableLoadMore(true)
+            setEnableLoadMore(false)
             setOnRefreshListener {
                 refresh()
-            }
-            setOnLoadMoreListener {
-                loadMore()
             }
         }
         voice_recyclerView.apply {
@@ -209,7 +203,6 @@ class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
                     iv_time_type.visibility = View.VISIBLE
                     editDialog.showNotification = getString(R.string.open_degree)
                     fragmentManager?.let { editDialog.show(it, voice) }
-                    weChatScannerImpl.enoughTime = true
                 }
                 false -> {
                     tv_time_type.visibility = View.GONE
@@ -239,6 +232,22 @@ class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
             }
         }
         popupListWindow?.setOnItemClickListener(this)
+
+
+        DatePickerDialog.newInstance(object :DatePickerDialog.OnSelectedDateListener{
+            override fun onSelectedDate(
+                view: DatePicker,
+                year: Int,
+                monthOfYear: Int,
+                dayOfMonth: Int
+            ) {
+
+            }
+
+        })
+
+        tv_date_pick.setOnClickListener {
+        }
     }
 
 //    private fun getShareList(): MutableList<ShareBean> {
@@ -394,8 +403,6 @@ class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
 
         override fun onFinished(num: Int) {
             refreshLayout.finishRefresh()
-            refreshLayout.finishLoadMore()
-            Log.e("新增num", "${num}")
             if (isDegreeScan && scanDialog.isAdded) {
                 scanDialog.dismiss()
             }
@@ -424,17 +431,6 @@ class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
         }
     }
 
-    /**
-     * 加载更多
-     */
-    private fun loadMore() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            weChatScannerImpl.count++
-            weChatScannerImpl.discoverUsersVoice(scannerCallback)
-            cancel()
-        }
-    }
-
     override fun onItemClick(view: View, position: Int, data: String) {
         when (data) {
             "用户名" -> {
@@ -447,27 +443,6 @@ class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
                 if (groupTag != data) {
                     groupTag = data
                     dealVoicesByTime()
-                }
-            }
-            "一个月" -> {
-                if (timeTag != data) {
-                    timeTag = data
-                    weChatScannerImpl.spaceTime = defaultSpaceTime
-                    refresh()
-                }
-            }
-            "三个月" -> {
-                if (timeTag != data) {
-                    timeTag = data
-                    weChatScannerImpl.spaceTime = threeMonthSpaceTime
-                    refresh()
-                }
-            }
-            "五个月" -> {
-                if (timeTag != data) {
-                    timeTag = data
-                    weChatScannerImpl.spaceTime = fiveMonthSpaceTime
-                    refresh()
                 }
             }
         }
@@ -484,8 +459,6 @@ class VoiceFragment : Fragment(), PopupListWindow.OnItemClickListener<String>,
      * 刷新
      */
     private fun refresh() {
-        weChatScannerImpl.count = 1
-        weChatScannerImpl.enoughTime = false
         voiceAdapter.clearData()
         discoverAmr()
     }

@@ -119,13 +119,29 @@ class Voice() :Comparable<Voice>,Parcelable{
             voiceBean.createTime =
                 Utils.getVoiceTime(file.lastModified())
             voiceBean.path = file.absolutePath
-            val start = voiceBean.path.length -11 - codeLength -1   //-11 代表去掉随机生成的7位字符+后缀 -5代表不变的code  -1是因为下标从0开始
-            if (start > 0 && voiceBean.path.length > start && voiceBean.path.length > start + codeLength) {
-                voiceBean.targetUser = voiceBean.path.substring(start, start + codeLength)
-                voiceBean.targetName = voiceBean.targetUser
-            }
+            voiceBean.targetUser = convertPathToUserCode(voiceBean.path)
+            voiceBean.targetName = voiceBean.targetUser
+//            val start = voiceBean.path.length -11 - codeLength -1   //-11 代表去掉随机生成的7位字符+后缀 -5代表不变的code  -1是因为下标从0开始
+//            if (start > 0 && voiceBean.path.length > start && voiceBean.path.length > start + codeLength) {
+//                voiceBean.targetUser = voiceBean.path.substring(start, start + codeLength)
+//                voiceBean.targetName = voiceBean.targetUser
+//            }
             return voiceBean
         }
+        /**
+         * 根据语音文件名 寻找对应用户名Code
+         */
+        fun convertPathToUserCode(path:String):String{
+            if (path.length > 17) {
+                val start =
+                    path.length - 11 - 5 - 1   //-11 代表去掉随机生成的7位字符+后缀 -5代表不变的code  -1是因为下标从0开始
+                if (start > 0 && path.length > start && path.length > start + 5) {
+                    return path.substring(start, start + 5)
+                }
+            }
+            return ""
+        }
+
 
         fun createMenuBean(typeName:String,size:Int):Voice{
             val voiceBean = Voice()

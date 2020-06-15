@@ -1,23 +1,14 @@
 package com.example.audioplayer.scanner
 
 import android.util.Log
-import androidx.lifecycle.LifecycleOwner
-import com.example.audioplayer.Utils
+import com.example.audioplayer.scanner.WeChatScanner.*
 import com.example.audioplayer.sqlite.Voice
 import com.example.audioplayer.scanner.WeChatScanner.Companion.defaultSpaceTime
 import com.example.audioplayer.scanner.WeChatScanner.Companion.userDir
 import com.example.audioplayer.scanner.WeChatScanner.Companion.voiceName
 import java.io.File
 
-/**
- * @param enoughTime true 代表有足够的时间去扫描
- * count 代表当前加载的次数(count == 1)代表第一次加载
- */
-class WeChatScannerImpl(
-    var count: Int = 1,
-    var spaceTime: Long = defaultSpaceTime,
-    var enoughTime: Boolean = false
-) : WeChatScanner {
+class WeChatScannerImpl(var filterStrategy:FilterStrategy):WeChatScanner(filterStrategy){
 
     override fun discoverUserVoice(userCode: String): MutableList<Voice> {
         val voiceDir = getUserVoiceDir(userCode)
@@ -69,25 +60,24 @@ class WeChatScannerImpl(
         }
     }
 
-    /**
-     * 扫描指定好友语音文件
-     */
-    override fun discoverUsersVoiceByTargetName(
-        targetUser: String,
-        callback: WeChatScanner.BaseDiscoverCallback
-    ) {
-        val dirs = discoverUsersDir()
-        if (dirs.isNotEmpty()) {
-            for (dir in dirs) {
-                val userCode = File(dir).name
-                val voiceDir = getUserVoiceDir(userCode)
-                discoverAmr(targetUser,File(voiceDir), userCode, callback)
-            }
-            callback.onCompleted(false)
-        } else {
-            callback.onCompleted(true)
-        }
-    }
+//    /**
+//     * 扫描指定好友语音文件
+//     */
+//    override fun discoverUsersVoiceByTargetName(
+//        callback: WeChatScanner.BaseDiscoverCallback
+//    ) {
+//        val dirs = discoverUsersDir()
+//        if (dirs.isNotEmpty()) {
+//            for (dir in dirs) {
+//                val userCode = File(dir).name
+//                val voiceDir = getUserVoiceDir(userCode)
+//                discoverAmr(targetUser,File(voiceDir), userCode, callback)
+//            }
+//            callback.onCompleted(false)
+//        } else {
+//            callback.onCompleted(true)
+//        }
+//    }
 
 
     private fun discoverUserDir(userCode: String): String {
@@ -141,41 +131,43 @@ class WeChatScannerImpl(
             }
         } else {
             if (file.name.toLowerCase().endsWith(".amr")) {
-                Log.e("${file.name}", "")
-                val targetName = convertPathToUserCode(file.absolutePath)
-                if ((inSpaceTime(file)) || enoughTime) {
+                if (filterStrategy.predicate(file)){
                     callback.received(file, userCode)
                 }
+//                Log.e("${file.name}", "")
+//                if ((inSpaceTime(file)) || enoughTime) {
+//                }
             }
         }
     }
 
-    /**
-     * 扫描某个好友的语音文件
-     */
-    private fun discoverAmr(
-        targetUser: String,
-        file: File,
-        userCode: String,
-        callback: WeChatScanner.BaseDiscoverCallback
-    ) {
-        if (file.isDirectory) {
-            if (file.listFiles().isNotEmpty()) {
-                for (item in file.listFiles()) {
-                    discoverAmr(targetUser,item, userCode, callback)
-                }
-            }
-        } else {
-            if (file.name.toLowerCase().endsWith(".amr")) {
-                Log.e("${file.name}", "")
-                val targetName = convertPathToUserCode(file.absolutePath)
-                Log.e("扫描结果","$targetName    $targetUser")
-                if ( ((inSpaceTime(file)) || enoughTime) && targetName == targetUser) {
-                    callback.received(file, userCode)
-                }
-            }
-        }
-    }
+//    /**
+//     * 扫描某个好友的语音文件
+//     */
+//    private fun discoverAmr(
+//        targetUser: String,
+//        file: File,
+//        userCode: String,
+//        callback: WeChatScanner.BaseDiscoverCallback
+//    ) {
+//        if (file.isDirectory) {
+//            if (file.listFiles().isNotEmpty()) {
+//                for (item in file.listFiles()) {
+//                    discoverAmr(targetUser,item, userCode, callback)
+//                }
+//            }
+//        } else {
+//            if (file.name.toLowerCase().endsWith(".amr")) {
+//                Log.e("${file.name}", "")
+//                val targetName = convertPathToUserCode(file.absolutePath)
+//                Log.e("扫描结果","$targetName    $targetUser")
+//
+//                if ( ((inSpaceTime(file)) || enoughTime) && targetName == targetUser) {
+//                    callback.received(file, userCode)
+//                }
+//            }
+//        }
+//    }
 
     private fun discoverAmr(file: File, voiceList: MutableList<Voice>, userCode: String) {
         if (file.isDirectory) {
@@ -193,21 +185,21 @@ class WeChatScannerImpl(
     }
 
 
-    /**
-     * 根据语音文件名 寻找对应用户名Code
-     */
-    private fun convertPathToUserCode(path:String):String{
-        val start = path.length -11 - 5 -1   //-11 代表去掉随机生成的7位字符+后缀 -5代表不变的code  -1是因为下标从0开始
-        if (start > 0 && path.length > start && path.length > start + 5) {
-            return path.substring(start, start + 5)
-        }
-        return ""
-    }
-
-    /**
-     * 处于间隔时间内  (默认为间隔时间为一个月)
-     */
-    private fun inSpaceTime(file: File) = System.currentTimeMillis() - file.lastModified() >= (count - 1) * spaceTime
-            && System.currentTimeMillis() - file.lastModified() < count * spaceTime
+//    /**
+//     * 根据语音文件名 寻找对应用户名Code
+//     */
+//    private fun convertPathToUserCode(path:String):String{
+//        val start = path.length -11 - 5 -1   //-11 代表去掉随机生成的7位字符+后缀 -5代表不变的code  -1是因为下标从0开始
+//        if (start > 0 && path.length > start && path.length > start + 5) {
+//            return path.substring(start, start + 5)
+//        }
+//        return ""
+//    }
+//
+//    /**
+//     * 处于间隔时间内  (默认为间隔时间为一个月)
+//     */
+//    private fun inSpaceTime(file: File) = System.currentTimeMillis() - file.lastModified() >= (count - 1) * spaceTime
+//            && System.currentTimeMillis() - file.lastModified() < count * spaceTime
 
 }

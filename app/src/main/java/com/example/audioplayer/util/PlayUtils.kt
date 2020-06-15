@@ -65,10 +65,10 @@ class PlayUtils:MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener
     }
 
     fun onDestroy(){
+        this.playListener = null
         if (this.mediaPlayer!=null && this.mediaPlayer.isPlaying) {
             this.mediaPlayer.stop()
             this.mediaPlayer.release()
-            this.playListener = null
         }
     }
 

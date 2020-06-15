@@ -22,6 +22,7 @@ import com.example.audioplayer.base.BaseRecyclerViewAdapter
 import com.example.audioplayer.scanner.DiscoverAndConvertCallback
 import com.example.audioplayer.scanner.WeChatScanner
 import com.example.audioplayer.scanner.WeChatScannerImpl
+import com.example.audioplayer.scanner.strategy.TargetNameStrategy
 import com.example.audioplayer.sqlite.Voice
 import com.example.audioplayer.util.PlayUtils
 import com.scwang.smart.refresh.footer.BallPulseFooter
@@ -37,7 +38,8 @@ class TargetUserActivity:AppCompatActivity() {
 
     private var playingPosition = -1
     private lateinit var targetUserCode:String
-    private val weChatScannerImpl: WeChatScannerImpl = WeChatScannerImpl()
+    private lateinit var weChatScannerImpl: WeChatScannerImpl
+
     private val voiceList:MutableList<Voice> = mutableListOf()
     private var voiceAdapter:VoiceAdapter = VoiceAdapter(voiceList)
     private var editDialog: OnContentDialog =
@@ -49,17 +51,14 @@ class TargetUserActivity:AppCompatActivity() {
         discoverCallback.registerLifecycle(this)
         targetUserCode = intent!!.getStringExtra(KEY_USER_CODE)
         tv_title.text = VoiceConfig.instance.getNameByCode(targetUserCode)
-
+        weChatScannerImpl = WeChatScannerImpl(TargetNameStrategy(targetUserCode))
         smart_refreshLayout.apply {
             setRefreshHeader(MaterialHeader(this@TargetUserActivity))
             setRefreshFooter(BallPulseFooter(this@TargetUserActivity))
-            setEnableLoadMore(true)
+            setEnableLoadMore(false)
             setEnableRefresh(true)
             setOnRefreshListener {
                 refresh()
-            }
-            setOnLoadMoreListener {
-                loadMore()
             }
         }
 
@@ -198,7 +197,7 @@ class TargetUserActivity:AppCompatActivity() {
 
     private fun discoverVoice(){
         lifecycleScope.launch(Dispatchers.IO){
-            weChatScannerImpl.discoverUsersVoiceByTargetName(targetUserCode,discoverCallback)
+            weChatScannerImpl.discoverUsersVoice(discoverCallback)
         }
     }
 
@@ -206,7 +205,6 @@ class TargetUserActivity:AppCompatActivity() {
         DiscoverAndConvertCallback(){
         override fun onReceived(voice: Voice) {
             voiceList.add(voice)
-            Log.e("扫描结果","增加")
         }
 
         override fun onError(error: String) {
@@ -221,13 +219,7 @@ class TargetUserActivity:AppCompatActivity() {
     }
 
     private fun refresh(){
-        weChatScannerImpl.count = 0
         voiceAdapter.clearData()
-        discoverVoice()
-    }
-
-    private fun loadMore(){
-        weChatScannerImpl.count++
         discoverVoice()
     }
 

@@ -30,16 +30,28 @@
         app:layout_constraintStart_toEndOf="@id/tv_group"
         app:layout_constraintTop_toTopOf="@id/tv_group" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_date_pick"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/iv_group"
+        app:layout_constraintBottom_toBottomOf="@id/iv_group"
+        android:textColor="@color/black"
+        android:text="2020-6-12-2020-6-18"
+        android:layout_marginEnd="15dp"/>
+
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/switch_degree"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tv_date_pick"
         app:layout_constraintTop_toTopOf="@id/iv_group"
         app:layout_constraintBottom_toBottomOf="@id/iv_group"
+        android:layout_marginRight="15dp"
         android:text="深度搜索"
         />
+
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_time_type"
@@ -53,7 +65,8 @@
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="@id/tv_group"
         app:layout_constraintEnd_toStartOf="@+id/iv_time_type"
-        app:layout_constraintTop_toTopOf="@id/tv_group" />
+        app:layout_constraintTop_toTopOf="@id/tv_group"
+        android:visibility="gone"/>
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iv_time_type"
@@ -64,7 +77,8 @@
         android:src="@mipmap/arrow_down"
         app:layout_constraintBottom_toBottomOf="@id/tv_group"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tv_group" />
+        app:layout_constraintTop_toTopOf="@id/tv_group"
+        android:visibility="gone"/>
 
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
